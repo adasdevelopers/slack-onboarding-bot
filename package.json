@@ -1,7 +1,7 @@
 {
-  "name": "Adas_Bot",
+  "name": "slack-bot",
   "version": "1.0.0",
-  "description": "Adas_Bot",
+  "description": "Ada's Team Slack Bot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,9 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "slackbots": "^1.2.0",
+    "vow": "^0.4.20"
   }
 }
