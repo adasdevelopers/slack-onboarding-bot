@@ -1,17 +1,39 @@
 require('dotenv').config();
 const SlackBot = require('slackbots');
+const _ = require('lodash');
 const axios = require('axios');
-const { get } = require('lodash');
-var Vow = require('vow');
+const express = require('express');
+const bodyParser = require('body-parser');
+const request = require("request");
+
+// Creates express (middleware)
+const app = express();
+
+// The port used for express server
+const PORT = 3000;
+
+// listen/runs server
+app.listen(process.env.PORT || PORT, function() {
+    console.log('Bot is listening on port ' + PORT);
+});
 
 const bot = new SlackBot({
     token: process.env.SLACK_AUTH_TOKEN,
     name: "Ada's Bot"
 });
 
+var listofChannels = []
+// Placeholder Data
+var rolesDescription = "*The various roles are:* \n" + "*Mentors* : [placeholder]\n" + "*Admins*: [placeholder]\n"
+var workspaceRules = "Update your rules:"
+var sendTrainingMaterial = "[placeholder_training]"
+var supplementalResources = "[placeholder_supplementalResources]"
+var faq = "[placeholder_faq]"
+
 
 // Starting handler
 bot.on('start', () => {
+    updateChannels()
     // bot.postMessageToChannel('testing',  "Welcome to Ada's Team Workspace");
 });
 
@@ -26,8 +48,9 @@ bot.on('message',(data) => {
         // console.log(data)
         // bot.getUser(data.user).then((name) => console.log(name))
         publicGreeting(data.user)
-        getChannels()
-        console.log(getChannels())
+    }
+    if(data.subtype === 'channel_created'){
+        updateChannels()
     }
 });
 
@@ -40,31 +63,61 @@ function publicGreeting(userID){
     })
 }
 
+
 // *** promise bug *** // Leave for me 
-// function getChannels(){
-//     var listofChannels = []
-//     bot.getChannels().then( allChannels => {
-//         allChannels.channels.foreach(channel =>  listofChannels.push(channel.name))
-//     })
-// }
+async function updateChannels(){
+    listofChannels = []
+    bot.getChannels().then( allChannels => {
+        allChannels.channels.forEach(channel => { 
+            listofChannels.push(channel.name)     
+        });
+    })
+    return listofChannels; // returns a promise of list of channels, once it gets fulfilled.
+}
 
-// // parses the text as url encoded data and exposes the resulting object
-// app.use(bodyParser.urlencoded({extended: true}));
-// // parses the text as json and exposes the resulting object
-// app.use(bodyParser.json());
 
-// // here we take the /command and the response url[which is where slack listens to the command and calls the bot]
-// app.post('/', (req, res) => {
-//   // console.log(req.body)
-//   var data = {form: {
-//     token: process.env.SLACK_AUTH_TOKEN,
-//     channel: "#test",
-//     text: "Hey :wave:, welcome to Ada's Slack Workspace\n I'm AdaBot."
-//   }};
-//   request.post('https://slack.com/api/chat.postMessage', data, function (error, response, body) {
-//     // Sends welcome message
-//     console.log("It did something")
-//     console.log(res)
-//     res.json();
-//   });
-// });
+// Create command that shows Instructions on how to update personal information on Slack
+app.post("/update info", function(req, res) { 
+    res.send("This is a post request to '/update'!!\n" + listofChannels); 
+}); 
+
+// Create command to view supplemental resources 
+app.post("/resources", function(req, res) { 
+    res.send(supplementalResources); 
+});
+
+// Create command to view FAQ sheet for workspaces  
+app.post("/faq", function(req, res) { 
+    res.send(faq); 
+}); 
+
+// Create command to view workspace rules 
+app.post("/rules", function(req, res) { 
+    res.send(workspaceRules); 
+}); 
+  
+// Create command to view training materials 
+app.post("/training", function(req, res) { 
+    res.send(sendTrainingMaterial); 
+});
+
+// Create command to display information about specific roles 
+app.post("/roles", function(req, res) { 
+    res.send(rolesDescription); 
+    
+}); 
+
+// Create command to view admins // Data is the bot obtains whenever it is started  
+app.post("/admins", function(req, res) { 
+    bot.getUsers().then( users => {
+        var admins = _.filter(users.members,['is_admin',true]).map(userAdmin => userAdmin.real_name)
+        res.send("The following admins of this workspace are: \n"+ (admins)); 
+    })
+});
+
+// Create command to update workspace rules 
+app.post("/update_rules", function(req, res) { 
+    console.log(req,res)
+    res.send(workspaceRules); 
+}); 
+
