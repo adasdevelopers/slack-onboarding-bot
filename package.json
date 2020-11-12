@@ -1,5 +1,5 @@
 {
-  "name": "slack-bot",
+  "name": "slack-onboarding-bot",
   "version": "1.0.0",
   "description": "Ada's Team Slack Bot",
   "main": "index.js",
@@ -7,15 +7,20 @@
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adasdevelopers/slack-onboarding-bot.git"
+  },
+  "author": "Ava Guo/Hannah Tellambura/Muhammad Abdullah/Zubier Hagi",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adasdevelopers/slack-onboarding-bot/issues"
+  },
+  "homepage": "https://github.com/adasdevelopers/slack-onboarding-bot#readme",
   "dependencies": {
-    "axios": "^0.21.0",
-    "body-parser": "^1.19.0",
+    "@slack/bolt": "^2.4.1",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "request": "^2.88.2",
-    "slackbots": "^1.2.0",
-    "vow": "^0.4.20"
+    "lodash": "^4.17.20",
+    "nodemon": "^2.0.6"
   }
 }
