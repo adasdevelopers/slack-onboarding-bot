@@ -366,6 +366,7 @@ function saveUsers(usersArray) {
         userId = user["id"];
     }
     adminList["Admin"] = user;
+    console.log(user)
   });
 }
 
