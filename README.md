@@ -2,4 +2,5 @@
 A Slack onboarding bot for all of Ada's Team's workspaces.
 
 
-# Setup
+## Setup
+`Required dependencies 
