@@ -1,13 +1,13 @@
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
-require("dotenv").config(); 
+require("dotenv").config();
 const _ = require('lodash');
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
   name: "Ada's Bot"
-}); 
+});
 
 (async () => {
     await app.start(process.env.PORT); // Starts the bot
@@ -16,7 +16,7 @@ const app = new App({
 
 
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
-    client.s 
+    client.s
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -79,7 +79,7 @@ app.view('view_1', async ({ ack, body, view, context }) => {
     const val = view['state']['values']['input_c'];
     const user = body['user']['id'];
     rules = val.inputField.value
-  
+
     // Message to send to the sending user
     let msg = '';
       msg = 'Your submission was successful';
@@ -95,9 +95,9 @@ app.view('view_1', async ({ ack, body, view, context }) => {
     catch (error) {
       console.error(error);
     }
-  
+
 });
-  
+
 app.command('/workspace_rules', async ({ ack, body, say }) => {
     await ack();
     // const regex = "\n* /gi"
@@ -110,7 +110,7 @@ app.command('/workspace_rules', async ({ ack, body, say }) => {
     })
 
 })
-  
+
 app.command('/resources', async ({ ack, body, say }) => {
     await ack();
     console.log("Resources")
@@ -120,7 +120,7 @@ app.command('/resources', async ({ ack, body, say }) => {
         user: body.user_id,
         text: `Resources`
     })
-    
+
 })
 
 app.command('/faq', async ({ ack, body, say }) => {
@@ -132,7 +132,7 @@ app.command('/faq', async ({ ack, body, say }) => {
         text: "Read our FAQ here https://www.adasteam.ca/faq"
     })
 })
-  
+
 app.command('/update_roles',  async ({ ack, body, client }) => {
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
@@ -164,7 +164,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_d',
@@ -178,7 +178,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                             multiline: true
                         }
                         },
-                        
+
                         {
                             "type": "input",
                             block_id: 'input_te',
@@ -195,7 +195,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_e',
@@ -227,7 +227,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_f',
@@ -286,7 +286,7 @@ app.view('view_2', async ({ ack, body, view, context }) => {
 
     const user = body['user']['id'];
     // rules = val.inputField.value
-  
+
     let msg = '';
 
     msg = 'Your submission was successful';
@@ -343,7 +343,7 @@ app.command('/admins', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(admins)}`
     })
 })
-  
+
 var adminList = {};
 async function fetchUsers() {
   try {
@@ -366,8 +366,8 @@ function saveUsers(usersArray) {
         userId = user["id"];
     }
     adminList["Admin"] = user;
+    console.log(user)
   });
 }
 
 fetchUsers();
-
