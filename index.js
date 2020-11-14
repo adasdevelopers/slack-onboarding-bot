@@ -14,7 +14,6 @@ const app = new App({
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
-
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
     client.s
     await ack();
@@ -134,6 +133,7 @@ app.command('/faq', async ({ ack, body, say }) => {
 })
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
+    console.log(body)
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -269,7 +269,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
     }
 });
 
-var roles = 'No Roles Are Currently Set'
+var roles = ''
 app.view('view_2', async ({ ack, body, view, context }) => {
     await ack();
     const key1 = view['state']['values']['input_td']['title']['value'];
@@ -331,43 +331,51 @@ app.command('/training', async ({ ack, body, say }) => {
     })
 })
 
-
+var adminList = [];
 app.command('/admins', async ({ ack, body, say }) => {
     await ack();
     fetchUsers();
-    var admins = _.map(adminList,userAdmin => userAdmin.real_name)
+    // Returns the admin name
+    var admins = adminList.map(admin => admin.real_name)
     await app.client.chat.postEphemeral({
         token: process.env.SLACK_BOT_TOKEN,
         channel: body.channel_id,
         user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins)}`
+        text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
     })
 })
 
-var adminList = {};
 async function fetchUsers() {
   try {
     const result = await app.client.users.list({
       token: process.env.SLACK_BOT_TOKEN
     });
 
-    saveUsers(result.members);
+    saveAdmins(result.members);
   }
   catch (error) {
     console.error(error);
   }
 }
 
+function saveAdmins(usersArray) {
+    adminList = [];
+    usersArray.map(user => {
+        if (user["is_admin"] === true){
+            adminList.push(user)
+        }else{
+        }
+    })
 
-function saveUsers(usersArray) {
-  var userId = '';
-  usersArray.forEach(function(user){
-    if (user["is_admin",true]){
-        userId = user["id"];
-    }
-    adminList["Admin"] = user;
-    console.log(user)
-  });
 }
-
 fetchUsers();
+
+app.event('member_joined_channel', async ({ event, client, context }) => {
+    console.log(event)
+    await app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: event.channel,
+        user: event.user,
+        text: `Welcome to the team, <@${event.user}>!`
+    })
+});
