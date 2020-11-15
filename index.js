@@ -347,7 +347,6 @@ app.command('/admins', async ({ ack, body, say }) => {
     })
 })
 
-<<<<<<< HEAD
 app.command('/update_info', async ({ ack, body, say }) => {
     await ack();
     try {
@@ -394,8 +393,7 @@ app.command('/update_info', async ({ ack, body, say }) => {
 })
 
 var adminList = {};
-=======
->>>>>>> daeaafeb75ce5144ca8b30a08c5c6f3dbefbbce2
+
 async function fetchUsers() {
   try {
     const result = await app.client.users.list({
