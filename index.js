@@ -1,6 +1,8 @@
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
+const CONFIG = require('config');
+console.log(CONFIG.get('update_info'))
 const _ = require('lodash');
 
 const app = new App({
@@ -342,6 +344,51 @@ app.command('/admins', async ({ ack, body, say }) => {
         user: body.user_id,
         text: `The following admins of this workspace are: \n ${(admins)}`
     })
+})
+
+app.command('/update_info', async ({ ack, body, say }) => {
+    await ack();
+    try {
+        await app.client.views.open(
+            {
+                "type": "modal",
+                "title": {
+                    "type": "plain_text",
+                    "text": "Ada's Bot",
+                    "emoji": true
+                },
+                "close": {
+                    "type": "plain_text",
+                    "text": "Cancel",
+                    "emoji": true
+                },
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": CONFIG.get('update_info.text')
+                        },
+                        "accessory": {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Update Info",
+                                "emoji": true
+                            },
+                            "value": "click_me_123",
+                            "url": CONFIG.get('update_info.url'),
+                            "action_id": "button-action"
+                        }
+                    }
+                ]
+            }
+        )
+    }
+    catch (error) {
+        console.log(error)
+    }
+
 })
 
 var adminList = {};
