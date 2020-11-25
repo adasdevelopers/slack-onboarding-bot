@@ -2,3 +2,6 @@
 .env
 .env.local
 node_modules/
+**.idea/**
+.idea/
+.DS_Store?

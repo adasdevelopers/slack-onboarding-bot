@@ -1,22 +1,21 @@
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
-require("dotenv").config(); 
+require("dotenv").config();
 const _ = require('lodash');
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
   name: "Ada's Bot"
-}); 
+});
 
 (async () => {
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
-
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
-    client.s 
+    client.s
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -79,7 +78,7 @@ app.view('view_1', async ({ ack, body, view, context }) => {
     const val = view['state']['values']['input_c'];
     const user = body['user']['id'];
     rules = val.inputField.value
-  
+
     // Message to send to the sending user
     let msg = '';
       msg = 'Your submission was successful';
@@ -95,9 +94,9 @@ app.view('view_1', async ({ ack, body, view, context }) => {
     catch (error) {
       console.error(error);
     }
-  
+
 });
-  
+
 app.command('/workspace_rules', async ({ ack, body, say }) => {
     await ack();
     // const regex = "\n* /gi"
@@ -110,7 +109,7 @@ app.command('/workspace_rules', async ({ ack, body, say }) => {
     })
 
 })
-  
+
 app.command('/resources', async ({ ack, body, say }) => {
     await ack();
     console.log("Resources")
@@ -120,7 +119,7 @@ app.command('/resources', async ({ ack, body, say }) => {
         user: body.user_id,
         text: `Resources`
     })
-    
+
 })
 
 app.command('/faq', async ({ ack, body, say }) => {
@@ -132,8 +131,9 @@ app.command('/faq', async ({ ack, body, say }) => {
         text: "Read our FAQ here https://www.adasteam.ca/faq"
     })
 })
-  
+
 app.command('/update_roles',  async ({ ack, body, client }) => {
+    console.log(body)
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -164,7 +164,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_d',
@@ -178,7 +178,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                             multiline: true
                         }
                         },
-                        
+
                         {
                             "type": "input",
                             block_id: 'input_te',
@@ -195,7 +195,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_e',
@@ -227,7 +227,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "text": "Title"
                             }
                         },
-                        
+
                         {
                         type: 'input',
                         block_id: 'input_f',
@@ -269,7 +269,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
     }
 });
 
-var roles = 'No Roles Are Currently Set'
+var roles = ''
 app.view('view_2', async ({ ack, body, view, context }) => {
     await ack();
     const key1 = view['state']['values']['input_td']['title']['value'];
@@ -286,7 +286,7 @@ app.view('view_2', async ({ ack, body, view, context }) => {
 
     const user = body['user']['id'];
     // rules = val.inputField.value
-  
+
     let msg = '';
 
     msg = 'Your submission was successful';
@@ -331,43 +331,108 @@ app.command('/training', async ({ ack, body, say }) => {
     })
 })
 
-
+var adminList = [];
 app.command('/admins', async ({ ack, body, say }) => {
     await ack();
     fetchUsers();
-    var admins = _.map(adminList,userAdmin => userAdmin.real_name)
+    // Returns the admin name
+    var admins = adminList.map(admin => admin.real_name)
     await app.client.chat.postEphemeral({
         token: process.env.SLACK_BOT_TOKEN,
         channel: body.channel_id,
         user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins)}`
+        text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
     })
 })
-  
+
+const { updateInfo } = require('./config/constants')
+
+app.command('/update_info', async ({ ack, body, say }) => {
+    await ack();
+    try {
+        await app.client.chat.postEphemeral({
+            token: process.env.SLACK_BOT_TOKEN,
+            channel: body.channel_id,
+            user: body.user_id,
+            text: updateInfo.text + " " + updateInfo.url
+        })
+        // const result = await app.client.views.open({
+        //     token: process.env.SLACK_BOT_TOKEN,
+        //     trigger_id: body.trigger_id,
+        //     view: {
+        //         "type": "modal",
+        //         "title": {
+        //             "type": "plain_text",
+        //             "text": "Ada's Bot",
+        //             "emoji": true
+        //         },
+        //         "close": {
+        //             "type": "plain_text",
+        //             "text": "Cancel",
+        //             "emoji": true
+        //         },
+        //         "blocks": [
+        //             {
+        //                 "type": "section",
+        //                 "text": {
+        //                     "type": "mrkdwn",
+        //                     "text": "hello"
+        //                 },
+        //                 "accessory": {
+        //                     "type": "button",
+        //                     "text": {
+        //                         "type": "plain_text",
+        //                         "text": "Update Info",
+        //                         "emoji": true
+        //                     },
+        //                     "value": "click_me_123",
+        //                     "url": "hello",
+        //                     "action_id": "button-action"
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // })
+    }
+    catch (error) {
+        console.log(error)
+    }
+
+})
+
 var adminList = {};
+
 async function fetchUsers() {
   try {
     const result = await app.client.users.list({
       token: process.env.SLACK_BOT_TOKEN
     });
 
-    saveUsers(result.members);
+    saveAdmins(result.members);
   }
   catch (error) {
     console.error(error);
   }
 }
 
+function saveAdmins(usersArray) {
+    adminList = [];
+    usersArray.map(user => {
+        if (user["is_admin"] === true){
+            adminList.push(user)
+        }else{
+        }
+    })
 
-function saveUsers(usersArray) {
-  var userId = '';
-  usersArray.forEach(function(user){
-    if (user["is_admin",true]){
-        userId = user["id"];
-    }
-    adminList["Admin"] = user;
-  });
 }
-
 fetchUsers();
 
+app.event('member_joined_channel', async ({ event, client, context }) => {
+    console.log(event)
+    await app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: event.channel,
+        user: event.user,
+        text: `Welcome to the team, <@${event.user}>!`
+    })
+});
