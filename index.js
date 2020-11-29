@@ -3,6 +3,8 @@ const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
 const callFaq = require("./callingFaq");
+const callResources = require('./callingResources');
+const callTraining = require('./callingTraining');
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -14,6 +16,20 @@ const app = new App({
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
+//Welcome greeting prototype
+app.event('app_home_opened', async ({event, context}) => {
+    try {
+        console.log("GREETING MESSAGE")
+        const result = await app.client.chat.postEphemeral({
+            token: context.botToken,
+            user_id: event.user,
+            channel: context.channel_id,
+            text: "HOLA SOI ADABOT"
+        }
+    )} catch (error) {
+            console.error(error);
+        }
+    });
 //const channelGreeting = async (app,)
 
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
@@ -111,29 +127,14 @@ app.command('/workspace_rules', async ({ ack, body, say }) => {
     })
 
 })
-
-app.command('/resources', async ({ ack, body, say }) => {
+//app.command calls the callResources function
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body));
+//thisb utton responds to an action taking place from the user selecting the button generated from resources
+app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
-    console.log("Resources")
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Resources`
-    })
-
-})
-
-// const call_faq = async ( ack, body ) => {
-//     await ack();
-//     await app.client.chat.postEphemeral({
-//         token: process.env.SLACK_BOT_TOKEN,
-//         channel: body.channel_id,
-//         user: body.user_id,
-//         text: "Read our FAQ here https://www.adasteam.ca/faq"
-//     })
-// };
-
+    // Responds to button from resources
+  });
+//appcommand calls the callFaq function
 app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
@@ -323,18 +324,12 @@ app.command('/roles', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(roles_type)}`
     })
 })
-
-app.command('/training', async ({ ack, body, say }) => {
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
+app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
-    console.log(body)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Training`
-    })
-})
-
+    await say('I am so proud of you!')
+    });
+    // Responds to button from resources;
 var adminList = [];
 app.command('/admins', async ({ ack, body, say }) => {
     await ack();
@@ -431,17 +426,14 @@ function saveAdmins(usersArray) {
 }
 fetchUsers();
 
-// const member_check =  async ({ event, client, context }) => {
-//     console.log(event)
-//     await app.client.chat.postMessage({
-//         token: process.env.SLACK_BOT_TOKEN,
-//         channel: event.channel,
-//         user: event.user,
-//         text: `Welcome to the team, <@${event.user}>!`
-//     })
-// }
-
-// app.event('member_joined_channel',  member_check({event, client, context}));
-
+app.event('member_joined_channel', async ({ event, client, context }) => {
+    console.log(event)
+    await app.client.chat.postMessage({
+        token: process.env.SLACK_BOT_TOKEN,
+        channel: event.channel,
+        user: event.user,
+        text: `Welcome to the team, <@${event.user}>!`
+    })
+});
 
 module.exports = {app}
