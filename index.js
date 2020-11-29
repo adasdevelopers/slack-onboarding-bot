@@ -2,7 +2,7 @@ const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
-
+const callFaq = require("./callingFaq");
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -13,6 +13,8 @@ const app = new App({
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
 })();
+
+//const channelGreeting = async (app,)
 
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
     client.s
@@ -122,15 +124,17 @@ app.command('/resources', async ({ ack, body, say }) => {
 
 })
 
-app.command('/faq', async ({ ack, body, say }) => {
-    await ack();
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: "Read our FAQ here https://www.adasteam.ca/faq"
-    })
-})
+// const call_faq = async ( ack, body ) => {
+//     await ack();
+//     await app.client.chat.postEphemeral({
+//         token: process.env.SLACK_BOT_TOKEN,
+//         channel: body.channel_id,
+//         user: body.user_id,
+//         text: "Read our FAQ here https://www.adasteam.ca/faq"
+//     })
+// };
+
+app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
     console.log(body)
@@ -345,7 +349,7 @@ app.command('/admins', async ({ ack, body, say }) => {
     })
 })
 
-const { updateInfo } = require('./config/constants')
+const { updateInfo } = require('./config/constants.js')
 
 app.command('/update_info', async ({ ack, body, say }) => {
     await ack();
@@ -427,12 +431,17 @@ function saveAdmins(usersArray) {
 }
 fetchUsers();
 
-app.event('member_joined_channel', async ({ event, client, context }) => {
-    console.log(event)
-    await app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: event.channel,
-        user: event.user,
-        text: `Welcome to the team, <@${event.user}>!`
-    })
-});
+// const member_check =  async ({ event, client, context }) => {
+//     console.log(event)
+//     await app.client.chat.postMessage({
+//         token: process.env.SLACK_BOT_TOKEN,
+//         channel: event.channel,
+//         user: event.user,
+//         text: `Welcome to the team, <@${event.user}>!`
+//     })
+// }
+
+// app.event('member_joined_channel',  member_check({event, client, context}));
+
+
+module.exports = {app}
