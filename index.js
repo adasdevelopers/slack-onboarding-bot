@@ -5,6 +5,8 @@ const _ = require('lodash');
 const callFaq = require("./callingFaq");
 const callResources = require('./callingResources');
 const callTraining = require('./callingTraining');
+const callUpdateInfo = require('./callingUpdateInfo')
+
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -345,38 +347,11 @@ app.command('/admins', async ({ ack, body, say }) => {
 })
 
 const { updateInfo } = require('./config/constants.js')
-
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo(app, ack, body, say))
 // Command to display button to update info at link
-app.command('/update_info', async ({ ack, body, say }) => {
-    await ack();
-    await say({
-        blocks: [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": updateInfo.text
-                },
-                "accessory": {
-                    "type": "button",
-                    "style": "primary",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Update :smile:",
-                        "emoji": true
-                    },
-                    "value": "update_info_urls",
-                    "url": updateInfo.url,
-                    "action_id": "update-info-button-action"
-                }
-            }
-        ]
-    });
-
-})
 app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
-    // Responds to button from resources
+    // Responds to button from update-info
   });
 
 var adminList = {};
