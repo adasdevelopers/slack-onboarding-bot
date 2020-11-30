@@ -1,4 +1,4 @@
-const callFaq  = require('./callingFaq');
+const callFaq  = require('../src/callingFaq');
 require("dotenv").config();
 describe('FAQ Test', () => {
 	it('should send proper message when callFaq is called', async () => {
