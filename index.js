@@ -346,56 +346,32 @@ app.command('/admins', async ({ ack, body, say }) => {
 
 const { updateInfo } = require('./config/constants.js')
 
+// Command to display button to update info at link
 app.command('/update_info', async ({ ack, body, say }) => {
     await ack();
-    try {
-        await app.client.chat.postEphemeral({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: body.channel_id,
-            user: body.user_id,
-            text: updateInfo.text + " " + updateInfo.url
-        })
-        // const result = await app.client.views.open({
-        //     token: process.env.SLACK_BOT_TOKEN,
-        //     trigger_id: body.trigger_id,
-        //     view: {
-        //         "type": "modal",
-        //         "title": {
-        //             "type": "plain_text",
-        //             "text": "Ada's Bot",
-        //             "emoji": true
-        //         },
-        //         "close": {
-        //             "type": "plain_text",
-        //             "text": "Cancel",
-        //             "emoji": true
-        //         },
-        //         "blocks": [
-        //             {
-        //                 "type": "section",
-        //                 "text": {
-        //                     "type": "mrkdwn",
-        //                     "text": "hello"
-        //                 },
-        //                 "accessory": {
-        //                     "type": "button",
-        //                     "text": {
-        //                         "type": "plain_text",
-        //                         "text": "Update Info",
-        //                         "emoji": true
-        //                     },
-        //                     "value": "click_me_123",
-        //                     "url": "hello",
-        //                     "action_id": "button-action"
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // })
-    }
-    catch (error) {
-        console.log(error)
-    }
+    await say({
+        blocks: [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": updateInfo.text
+                },
+                "accessory": {
+                    "type": "button",
+                    "style": "primary",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Update :smile:",
+                        "emoji": true
+                    },
+                    "value": "update_info_urls",
+                    "url": updateInfo.url,
+                    "action_id": "button-action"
+                }
+            }
+        ]
+    });
 
 })
 
@@ -432,7 +408,12 @@ app.event('member_joined_channel', async ({ event, client, context }) => {
         token: process.env.SLACK_BOT_TOKEN,
         channel: event.channel,
         user: event.user,
-        text: `Welcome to the team, <@${event.user}>!`
+        text: `Hi <@${event.user}>, welcome to Ada’s Team!
+
+        The Ada's Team workspace is for the executives to collaborate, ask questions, and fulfill Ada's Team initiatives. Although everyone has their VP roles to complete, the Ada's Team executive committee is meant to be a safe space; if you are struggling with your work, please ask others for help!
+        
+        Congrats, and thanks for joining our team. We're so happy to have you here with us!
+        `
     })
 });
 
