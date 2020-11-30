@@ -329,7 +329,6 @@ app.command('/roles', async ({ ack, body, say }) => {
 app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
-    await say('I am so proud of you!')
     });
     // Responds to button from resources;
 var adminList = [];
