@@ -2,10 +2,11 @@ const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
-const callFaq = require("./callingFaq");
-const callResources = require('./callingResources');
-const callTraining = require('./callingTraining');
-const callUpdateInfo = require('./callingUpdateInfo')
+const callFaq = require("./src/callingFaq");
+const callResources = require('./src/callingResources');
+const callTraining = require('./src/callingTraining');
+const callUpdateInfo = require('./src/callingUpdateInfo');
+const { updateInfo } = require('./config/constants');
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -345,8 +346,8 @@ app.command('/admins', async ({ ack, body, say }) => {
     })
 })
 
-const { updateInfo } = require('./config/constants.js')
-app.command('/update_info', async({ ack, body, say}) => callUpdateInfo(app, ack, body, say))
+
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
 // Command to display button to update info at link
 app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
