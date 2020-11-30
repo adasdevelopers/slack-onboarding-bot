@@ -2,9 +2,12 @@ const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
-const callFaq = require("./callingFaq");
-const callResources = require('./callingResources');
-const callTraining = require('./callingTraining');
+const callFaq = require("./src/callingFaq");
+const callResources = require('./src/callingResources');
+const callTraining = require('./src/callingTraining');
+const callUpdateInfo = require('./src/callingUpdateInfo');
+const { updateInfo } = require('./config/constants');
+
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -327,7 +330,6 @@ app.command('/roles', async ({ ack, body, say }) => {
 app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
-    await say('I am so proud of you!')
     });
     // Responds to button from resources;
 var adminList = [];
@@ -344,60 +346,13 @@ app.command('/admins', async ({ ack, body, say }) => {
     })
 })
 
-const { updateInfo } = require('./config/constants.js')
 
-app.command('/update_info', async ({ ack, body, say }) => {
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
+// Command to display button to update info at link
+app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
-    try {
-        await app.client.chat.postEphemeral({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: body.channel_id,
-            user: body.user_id,
-            text: updateInfo.text + " " + updateInfo.url
-        })
-        // const result = await app.client.views.open({
-        //     token: process.env.SLACK_BOT_TOKEN,
-        //     trigger_id: body.trigger_id,
-        //     view: {
-        //         "type": "modal",
-        //         "title": {
-        //             "type": "plain_text",
-        //             "text": "Ada's Bot",
-        //             "emoji": true
-        //         },
-        //         "close": {
-        //             "type": "plain_text",
-        //             "text": "Cancel",
-        //             "emoji": true
-        //         },
-        //         "blocks": [
-        //             {
-        //                 "type": "section",
-        //                 "text": {
-        //                     "type": "mrkdwn",
-        //                     "text": "hello"
-        //                 },
-        //                 "accessory": {
-        //                     "type": "button",
-        //                     "text": {
-        //                         "type": "plain_text",
-        //                         "text": "Update Info",
-        //                         "emoji": true
-        //                     },
-        //                     "value": "click_me_123",
-        //                     "url": "hello",
-        //                     "action_id": "button-action"
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // })
-    }
-    catch (error) {
-        console.log(error)
-    }
-
-})
+    // Responds to button from update-info
+  });
 
 var adminList = {};
 
@@ -432,7 +387,11 @@ app.event('member_joined_channel', async ({ event, client, context }) => {
         token: process.env.SLACK_BOT_TOKEN,
         channel: event.channel,
         user: event.user,
-        text: `Welcome to the team, <@${event.user}>!`
+        text: `Hi <@${event.user}>, welcome to Ada’s Team!
+        The Ada's Team workspace is for the executives to collaborate, ask questions, and fulfill Ada's Team initiatives. Although everyone has their VP roles to complete, the Ada's Team executive committee is meant to be a safe space; if you are struggling with your work, please ask others for help!
+        
+        Congrats, and thanks for joining our team. We're so happy to have you here with us!
+        `
     })
 });
 
