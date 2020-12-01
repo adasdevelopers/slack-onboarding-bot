@@ -342,6 +342,7 @@ app.event('member_joined_channel', async ({event, client, context}) => callWelco
 
 
 
+
 var adminList = {};
 
 async function fetchUsers() {
@@ -368,6 +369,8 @@ function saveAdmins(usersArray) {
 
 }
 fetchUsers();
-///ISSUE HEREEEEEE NOT WORKING 
 
-module.exports = {app, fetchUsers}
+
+
+
+
