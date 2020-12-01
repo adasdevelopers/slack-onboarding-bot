@@ -1,3 +1,4 @@
+//Import all necessary files
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
@@ -7,7 +8,12 @@ const callResources = require('./src/callingResources');
 const callTraining = require('./src/callingTraining');
 const callUpdateInfo = require('./src/callingUpdateInfo');
 const { updateInfo } = require('./config/constants');
+const callAdmins = require("./src/callingAdmins");
+const callWelcomeMessage = require("./src/callingWelcomeMessage");
+const callWorkspaceRules = require("./src/callingWorkspaceRules");
 
+
+//Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -93,7 +99,7 @@ app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
     }
 });
 
-var rules = 'No Rules Currently Set'
+
 app.view('view_1', async ({ ack, body, view, context }) => {
     await ack();
     const val = view['state']['values']['input_c'];
@@ -118,18 +124,8 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 
 });
 
-app.command('/workspace_rules', async ({ ack, body, say }) => {
-    await ack();
-    // const regex = "\n* /gi"
-    // console.log(rules.replace(regex,"\n"))
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `*Current Workspace Rules:* \n ${rules}`
-    })
-
-})
+//app.command calls the the callWorkspaceRules function
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
 //app.command calls the callResources function
 app.command('/resources', async({ack, body, say}) => callResources(app, ack, body));
 //thisb utton responds to an action taking place from the user selecting the button generated from resources
@@ -332,20 +328,9 @@ app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
     });
     // Responds to button from resources;
+    
 var adminList = [];
-app.command('/admins', async ({ ack, body, say }) => {
-    await ack();
-    fetchUsers();
-    // Returns the admin name
-    var admins = adminList.map(admin => admin.real_name)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
-    })
-})
-
+app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
 
 app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
 // Command to display button to update info at link
@@ -353,6 +338,9 @@ app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
     // Responds to button from update-info
   });
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
+
+
 
 
 var adminList = {};
@@ -382,19 +370,7 @@ function saveAdmins(usersArray) {
 }
 fetchUsers();
 
-app.event('member_joined_channel', async ({ event, client, context }) => {
-    console.log(event)
-    await app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: event.channel,
-        user: event.user,
-        text: `Hi <@${event.user}>, welcome to Ada’s Team!
 
-        The Ada's Team workspace is for the executives to collaborate, ask questions, and fulfill Ada's Team initiatives. Although everyone has their VP roles to complete, the Ada's Team executive committee is meant to be a safe space; if you are struggling with your work, please ask others for help!
-        
-        Congrats, and thanks for joining our team. We're so happy to have you here with us!
-        `
-    })
-});
 
-module.exports = {app}
+
+
