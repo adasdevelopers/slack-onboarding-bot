@@ -7,7 +7,7 @@ describe('FAQ Test', () => {
 			const app = {
 				client: {
 					chat: {
-						postEphemeral: postEphemeralSpy
+						postEphemeral: postEphemeralSpy 
 					}
 				}
 			}
