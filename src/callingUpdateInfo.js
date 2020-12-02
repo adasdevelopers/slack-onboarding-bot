@@ -1,7 +1,7 @@
 require("dotenv").config();
 const { updateInfo } = require('../config/constants.js');
 
-const callUpdateInfo = async (app, ack, body, say) => {
+const callUpdateInfo = async (app, ack, body, say) => { 
     await ack();
     await app.client.chat.postEphemeral({
         token: process.env.SLACK_BOT_TOKEN,

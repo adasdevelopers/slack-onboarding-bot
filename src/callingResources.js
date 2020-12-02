@@ -54,6 +54,13 @@ const callResources = async (app, ack, body) => {
                         "type": "mrkdwn",
                         "text": "<https://www.linkedin.com/company/adas-team/|Adas Team LinkedIn>"
                     }
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "<https://www.facebook.com/AdasTeamFB/|Adas Team Facebook>"
+                    }
                 }
             ]
 	})
