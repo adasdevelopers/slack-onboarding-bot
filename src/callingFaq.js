@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const callFaq = async (app, ack, body) => {
+	console.log("faq")
 	await ack();
 	await app.client.chat.postEphemeral({
 			token: process.env.SLACK_BOT_TOKEN,
@@ -19,4 +20,4 @@ const callFaq = async (app, ack, body) => {
 	})
 };
 
-module.exports = callFaq 
+module.exports = callFaq  

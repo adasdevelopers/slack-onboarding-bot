@@ -1,6 +1,8 @@
 require("dotenv").config();
 
-const callFaq = async (app, ack, body) => {
+var rules = 'No Rules Currently Set'
+
+const callWorkspaceRules = async (app, ack, body) => {
 	await ack();
 	await app.client.chat.postEphemeral({
 			token: process.env.SLACK_BOT_TOKEN,
@@ -11,7 +13,7 @@ const callFaq = async (app, ack, body) => {
 					"type": "section",
 					"text": {
 						"type": "mrkdwn",
-						"text": "Read our FAQ <https://www.adasteam.ca/faq|here!>"
+						"text": `*Current Workspace Rules:* \n ${rules}`
 					}
 				}
 
@@ -19,4 +21,4 @@ const callFaq = async (app, ack, body) => {
 	})
 };
 
-module.exports = callFaq 
+module.exports = callWorkspaceRules
