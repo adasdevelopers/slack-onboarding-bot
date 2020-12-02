@@ -1,8 +1,19 @@
+//Import all necessary files
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
+const callFaq = require("./src/callingFaq");
+const callResources = require('./src/callingResources');
+const callTraining = require('./src/callingTraining');
+const callUpdateInfo = require('./src/callingUpdateInfo');
+const { updateInfo } = require('./config/constants');
+const callAdmins = require("./src/callingAdmins");
+const callWelcomeMessage = require("./src/callingWelcomeMessage");
+const callWorkspaceRules = require("./src/callingWorkspaceRules");
 
+
+//Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
@@ -14,6 +25,21 @@ const app = new App({
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
+//Welcome greeting prototype
+app.event('app_home_opened', async ({event, context}) => {
+    try {
+        console.log("GREETING MESSAGE")
+        const result = await app.client.chat.postEphemeral({
+            token: context.botToken,
+            user_id: event.user,
+            channel: context.channel_id,
+            text: "HOLA SOI ADABOT"
+        }
+    )} catch (error) {
+            console.error(error);
+        }
+    });
+//const channelGreeting = async (app,)
 
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
     client.s
@@ -73,7 +99,7 @@ app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
     }
 });
 
-var rules = 'No Rules Currently Set'
+
 app.view('view_1', async ({ ack, body, view, context }) => {
     await ack();
     const val = view['state']['values']['input_c'];
@@ -98,42 +124,20 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 
 });
 
-app.command('/workspace_rules', async ({ ack, body, say }) => {
+//app.command calls the the callWorkspaceRules function
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
+//app.command calls the callResources function
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body));
+//thisb utton responds to an action taking place from the user selecting the button generated from resources
+app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
-    // const regex = "\n* /gi"
-    // console.log(rules.replace(regex,"\n"))
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `*Current Workspace Rules:* \n ${rules}`
-    })
-
-})
-
-app.command('/resources', async ({ ack, body, say }) => {
-    await ack();
-    console.log("Resources")
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Resources`
-    })
-
-})
-
-app.command('/faq', async ({ ack, body, say }) => {
-    await ack();
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: "Read our FAQ here https://www.adasteam.ca/faq"
-    })
-})
+    // Responds to button from resources
+  });
+//appcommand calls the callFaq function
+app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
+    console.log(body)
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -269,7 +273,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
     }
 });
 
-var roles = 'No Roles Are Currently Set'
+var roles = ''
 app.view('view_2', async ({ ack, body, view, context }) => {
     await ack();
     const key1 = view['state']['values']['input_td']['title']['value'];
@@ -319,54 +323,49 @@ app.command('/roles', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(roles_type)}`
     })
 })
-
-app.command('/training', async ({ ack, body, say }) => {
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
+app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
-    console.log(body)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Training`
-    })
-})
+    });
+    // Responds to button from resources;
 
+var adminList = [];
+app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
 
-app.command('/admins', async ({ ack, body, say }) => {
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
+// Command to display button to update info at link
+app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
-    fetchUsers();
-    var admins = _.map(adminList,userAdmin => userAdmin.real_name)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins)}`
-    })
-})
+    // Responds to button from update-info
+  });
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event , client, context, app));
+
+
+
 
 var adminList = {};
+
 async function fetchUsers() {
   try {
     const result = await app.client.users.list({
       token: process.env.SLACK_BOT_TOKEN
     });
 
-    saveUsers(result.members);
+    saveAdmins(result.members);
   }
   catch (error) {
     console.error(error);
   }
 }
 
+function saveAdmins(usersArray) {
+    adminList = [];
+    usersArray.map(user => {
+        if (user["is_admin"] === true){
+            adminList.push(user)
+        }else{
+        }
+    })
 
-function saveUsers(usersArray) {
-  var userId = '';
-  usersArray.forEach(function(user){
-    if (user["is_admin",true]){
-        userId = user["id"];
-    }
-    adminList["Admin"] = user;
-  });
 }
-
 fetchUsers();
