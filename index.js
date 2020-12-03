@@ -326,7 +326,7 @@ app.command('/roles', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(roles_type)}`
     })
 })
-app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body,database, workspaceChecker))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
     });
@@ -372,8 +372,3 @@ function saveAdmins(usersArray) {
 
 }
 fetchUsers();
-
-
-
-
-
