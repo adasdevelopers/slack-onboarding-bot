@@ -11,6 +11,7 @@ const { updateInfo } = require('./config/constants');
 const callAdmins = require("./src/callingAdmins");
 const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const callWorkspaceRules = require("./src/callingWorkspaceRules");
+const {database, workspaceChecker} = require('./config/constants');
 
 
 //Initialize the application
@@ -129,7 +130,7 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 //app.command calls the the callWorkspaceRules function
 app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
 //app.command calls the callResources function
-app.command('/resources', async({ack, body, say}) => callResources(app, ack, body));
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
 //thisb utton responds to an action taking place from the user selecting the button generated from resources
 app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
