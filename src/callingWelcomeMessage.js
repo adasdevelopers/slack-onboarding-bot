@@ -1,6 +1,6 @@
   
 require("dotenv").config();
-
+const {database, workspaceChecker} = require('../config/constants')
 const callWelcomeMessage = async ( event, client, context, app ) => {
     try{
         console.log(event)

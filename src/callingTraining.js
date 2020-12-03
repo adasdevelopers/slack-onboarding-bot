@@ -1,6 +1,7 @@
 require("dotenv").config();
-
+const {database, workspaceChecker} = require('../config/constants')
 const callTraining = async (app, ack, body) => {
+    
 	await ack();
 	await app.client.chat.postEphemeral({
 			token: process.env.SLACK_BOT_TOKEN,
