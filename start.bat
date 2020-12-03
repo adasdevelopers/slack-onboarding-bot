@@ -1,2 +1,1 @@
-nodemon index.js
-pause
+npm start

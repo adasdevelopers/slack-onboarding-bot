@@ -11,16 +11,20 @@ const { updateInfo } = require('./config/constants');
 const callAdmins = require("./src/callingAdmins");
 const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const callWorkspaceRules = require("./src/callingWorkspaceRules");
+const {database, workspaceChecker} = require('./config/constants');
 
 
 //Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
-  name: "Ada's Bot"
+  name: "Ada's Bot",
 });
 
+//console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
+
 (async () => {
+    process.env.PORT = 3000;
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
 })();
@@ -127,8 +131,8 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 //app.command calls the the callWorkspaceRules function
 app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
 //app.command calls the callResources function
-app.command('/resources', async({ack, body, say}) => callResources(app, ack, body));
-//thisb utton responds to an action taking place from the user selecting the button generated from resources
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
+//this button responds to an action taking place from the user selecting the button generated from resources
 app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
     // Responds to button from resources
@@ -137,7 +141,7 @@ app.action('resource-button-action', async ({ ack, say }) => {
 app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
-    console.log(body)
+    //console.log(body)
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -339,7 +343,6 @@ app.action('update-info-button-action', async ({ ack, say }) => {
     // Responds to button from update-info
   });
 app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event , client, context, app));
-
 
 
 

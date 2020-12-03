@@ -1,5 +1,5 @@
 const callFaq  = require('../src/callingFaq');
-require("dotenv").config();
+require("dotenv").config(); 
 describe('FAQ Test', () => {
 	it('should send proper message when callFaq is called', async () => {
 			const ackSpy = jest.fn();
