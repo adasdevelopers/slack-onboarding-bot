@@ -128,7 +128,7 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 });
 
 //app.command calls the the callWorkspaceRules function
-app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
 //app.command calls the callResources function
 app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
 //thisb utton responds to an action taking place from the user selecting the button generated from resources

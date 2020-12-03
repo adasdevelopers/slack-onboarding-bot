@@ -7,7 +7,7 @@ database = {
     "adasmentors" : {
         welcomeMessage : 
             "Welcome to the Adas Mentors workspace! The goal of Adas Mentors is to mentor underprivileged students lacking the confidence and exposure to university and the application process.",
-        workspaceRules : ['Currently there are no rules in this Workspace'],
+        workspaceRules : [''],
         roles : [],
         training : ['*Who Are You?*','Under [What I do] please describe your field (ie, high school student, undergraduate student, graduate student, alumni, industry partner, or Adas Mentor organizer)'],
         resources : {
@@ -102,7 +102,7 @@ database = {
     }
 }
 workspaceChecker = {
-    'adas-teamworkspace' : "adasteam",
+    'adas-teamworkspace' : "adasdevelopers",
     'adas-developerworkspace': "adasdevelopers",
     'adas-mentorsworkspace': "adasmentors",
     'adas-networkworkspace' : "adasnetwork",
