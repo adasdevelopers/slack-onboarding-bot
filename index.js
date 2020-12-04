@@ -13,7 +13,14 @@ const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const {callWorkspaceRules, callWorkspaceRulesView, callUpdateWorkspaceRules} = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
 const callRoles = require("./src/callingRoles");
+<<<<<<< HEAD
 const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles, ackRolesView} = require("./src/callingUpdateRoles");
+=======
+const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles} = require("./src/callingUpdateRoles");
+// const callUpdateAddRolesViews = require('./src/callingUpdateAddRolesView');
+// const callUpdateDeleteRolesViews = require('./src/callingUpdateDeleteRolesView');
+
+>>>>>>> b4d172a244b61218ae73a0d300b3c8bf94e60d2c
 //Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -22,7 +29,6 @@ const app = new App({
 });
 
 //console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
-
 (async () => {
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
@@ -61,13 +67,12 @@ app.view('rolesView', async({ack, body, view, context}) => ackRolesView(app, ack
 var roles = '';
 
 app.command('/roles', async ({ ack, body, say }) =>  callRoles(app, ack, body, database, workspaceChecker, roles))
-
-app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body,database, workspaceChecker))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body, database, workspaceChecker))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
     });
     // Responds to button from resources;
-    
+
 var adminList = [];
 app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
 
