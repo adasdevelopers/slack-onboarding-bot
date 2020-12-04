@@ -1,10 +1,6 @@
 require("dotenv").config();
 const {database, workspaceChecker} = require('../config/constants')
 const callResources = async (app, ack, body, workspaceChecker, database) => {
-    //console.log(body);
-    //console.log(database)
-    //console.log(workspaceChecker);
-    //console.log(body.team_domain);
     workspaceID = ''
     //FIND THE PROPER WORKSPACE CHANNEL
     for (const [key, value] of Object.entries(workspaceChecker)) {
@@ -12,10 +8,9 @@ const callResources = async (app, ack, body, workspaceChecker, database) => {
             workspaceID = value
         }
       }
-    //console.log(typeof(workspaceID))
+    //CREATE an instance of the proper workspace database
     const workspaceObject = database[workspaceID];
-    //console.log(workspaceID)
-    //console.log(workspaceObject);
+    //create an instance of blockList that will be fed into the API call later
     blockList = [
         {
             "type": "section",
@@ -72,12 +67,12 @@ const callResources = async (app, ack, body, workspaceChecker, database) => {
             }
         }
     ]
+    //create a list that will hold onto additional objects to be fed into blockList
     var resourcesList = []
-    //console.log(workspaceObject.resources)
     for (const [key, value] of Object.entries(workspaceObject.resources)) {
         resourcesList.push(key,value)
-        //console.log(`${key} : ${value}`)
       }
+    //for each key,value pair in resource list, get the value 
     for(i = 1; i <= resourcesList.length - 1 ; i+=2){
         blockSection = {
             "type": "section",
@@ -87,9 +82,7 @@ const callResources = async (app, ack, body, workspaceChecker, database) => {
             }
         }
         blockList.push(blockSection)
-        //console.log(resourcesList[i])
     }
-    //console.log(resourcesList)
 	await ack();
 	await app.client.chat.postEphemeral({
 			token: process.env.SLACK_BOT_TOKEN,

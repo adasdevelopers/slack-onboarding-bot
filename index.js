@@ -128,7 +128,7 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 });
 
 //app.command calls the the callWorkspaceRules function
-app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
 //app.command calls the callResources function
 app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
 //thisb utton responds to an action taking place from the user selecting the button generated from resources
@@ -326,7 +326,7 @@ app.command('/roles', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(roles_type)}`
     })
 })
-app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body,database, workspaceChecker))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
     });
@@ -372,8 +372,3 @@ function saveAdmins(usersArray) {
 
 }
 fetchUsers();
-
-
-
-
-
