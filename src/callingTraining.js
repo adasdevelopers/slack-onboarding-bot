@@ -2,16 +2,22 @@ require("dotenv").config();
 const {database, workspaceChecker} = require('../config/constants')
 const callTraining = async (app, ack, body, database, workspaceChecker) => {
     await ack();
-
     //console.log(workspaceChecker,database)
     for (const [key, value] of Object.entries(workspaceChecker)) {
         if (key == body.team_domain) {
           workspaceID = value
-          console.log(value)
+          //console.log(value)
         }
-      }
-    
+    }
+    //workspaceID = "adasmentors";
     const workspaceObject = database[workspaceID];
+
+    extraText = ''
+    if (workspaceID == "adasdevelopers") {
+      // append extra text
+      extraText = "(ex. 4th year Arts student at the University of Alberta).";
+    }
+
     optionList= [
         {
             "text": {
@@ -20,7 +26,7 @@ const callTraining = async (app, ack, body, database, workspaceChecker) => {
             },
             "description": {
                 "type": "mrkdwn",
-                "text": "Edit your profile to include a photo of yourself, your name, pronouns, and field."
+                "text": "Edit your profile to include a photo of yourself, your name, pronouns, and field. " + extraText
             },
             "value": "value-0"
         }
@@ -30,8 +36,8 @@ const callTraining = async (app, ack, body, database, workspaceChecker) => {
     for (const [key, value] of Object.entries(workspaceObject.training)) {
         trainingList.push(value)
       }
-    //console.log(trainingList)
-    //for each key,value pair in resource list, get the value 
+
+    // for each key,value pair in resource list, get the value
     count = 1;
     for(i = 0; i <= trainingList.length - 1 ; i+=2){
         blockSection = {
@@ -48,8 +54,8 @@ const callTraining = async (app, ack, body, database, workspaceChecker) => {
         count++;
         optionList.push(blockSection);
     }
-    console.log(optionList)
-	
+    //console.log(optionList)
+
 	await app.client.chat.postEphemeral({
 			token: process.env.SLACK_BOT_TOKEN,
 			channel: body.channel_id,
@@ -70,7 +76,7 @@ const callTraining = async (app, ack, body, database, workspaceChecker) => {
                         "action_id": "training-checkboxes-action"
                     }
                 }
-            
+
             ]
 	})
 };
