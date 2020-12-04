@@ -10,13 +10,12 @@ const callUpdateInfo = require('./src/callingUpdateInfo');
 const { updateInfo } = require('./config/constants');
 const callAdmins = require("./src/callingAdmins");
 const callWelcomeMessage = require("./src/callingWelcomeMessage");
-const callWorkspaceRules = require("./src/callingWorkspaceRules");
+const {callWorkspaceRules, callWorkspaceRulesView, callUpdateWorkspaceRules} = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
 const callRoles = require("./src/callingRoles");
-
-const callUpdateWorkspaceRules = require("./src/callingUpdateWorkspaceRules");
-const callWorkspaceRulesView = require("./src/callWorkspaceRulesView");
-
+const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles} = require("./src/callingUpdateRoles");
+// const callUpdateAddRolesViews = require('./src/callingUpdateAddRolesView');
+// const callUpdateDeleteRolesViews = require('./src/callingUpdateDeleteRolesView');
 
 //Initialize the application
 const app = new App({
@@ -36,34 +35,12 @@ app.command('/update_workspace_rules',  async ({ ack, body, client }) =>  callUp
 
 app.view('workspaceRulesView', async({ack, body, view, context}) => callWorkspaceRulesView(app, ack, body, view, context, database, workspaceChecker));
 
-app.view('view_1', async ({ ack, body, view, context }) => {
-    await ack();
-    const val = view['state']['values']['input_c'];
-    const user = body['user']['id'];
-    rules = val.inputField.value
-    // Message to send to the sending user
-    let msg = '';
-      msg = 'Your submission was successful';
-
-    // Message
-    try {
-      await app.client.chat.postMessage({
-        token: context.botToken,
-        channel: user,
-        text: msg
-      });
-    }
-    catch (error) {
-      console.error(error);
-    }
-
-});
 
 //app.command calls the the callWorkspaceRules function
 app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
 //app.command calls the callResources function
 app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
-//thisb utton responds to an action taking place from the user selecting the button generated from resources
+//this button responds to an action taking place from the user selecting the button generated from resources
 app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
     // Responds to button from resources
@@ -71,178 +48,23 @@ app.action('resource-button-action', async ({ ack, say }) => {
 //appcommand calls the callFaq function
 app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
-app.command('/update_roles',  async ({ ack, body, client }) => {
-    console.log(body)
-    await ack();
-    var adminsID = _.map(adminList,userAdmin => userAdmin.id)
-    if (adminsID.includes(body.user_id)){
-        try {
-                const result = await client.views.open({
-                    trigger_id: body.trigger_id,
-                    view: {
-                    type: 'modal',
-                    callback_id: 'view_2',
-                    title: {
-                        type: 'plain_text',
-                        text: 'Update Workspace Roles'
-                    },
-                    blocks: [
-                        {
-                            "type": "input",
-                            block_id: 'input_td',
-                            "element": {
-                                "type": "plain_text_input",
-                                "action_id": "title",
-                                "placeholder": {
-                                    "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
-                                }
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "Title"
-                            }
-                        },
+app.command('/update_roles',  async ({ ack, body, client }) => callUpdateRoles(app, ack, body, client, database, workspaceChecker, adminList))
 
-                        {
-                        type: 'input',
-                        block_id: 'input_d',
-                        label: {
-                            type: 'plain_text',
-                            text: 'Description'
-                        },
-                        element: {
-                            type: 'plain_text_input',
-                            action_id: 'inputField',
-                            multiline: true
-                        }
-                        },
+app.action('delete-role-action', async({ack, body, client}) => callUpdateDeleteRolesView(app, ack, body, client))
 
-                        {
-                            "type": "input",
-                            block_id: 'input_te',
-                            "element": {
-                                "type": "plain_text_input",
-                                "action_id": "title",
-                                "placeholder": {
-                                    "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
-                                }
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "Title"
-                            }
-                        },
-
-                        {
-                        type: 'input',
-                        block_id: 'input_e',
-                        label: {
-                            type: 'plain_text',
-                            text: 'Description'
-                        },
-                        element: {
-                            type: 'plain_text_input',
-                            action_id: 'inputField',
-                            multiline: true
-                        }
-                        },
+app.view('delete_roles_view_submission', async({ack,body,view,context}) => deleteRoles(app,ack, body, view, context, database, workspaceChecker));
 
 
-                        {
-                            "type": "input",
-                            block_id: 'input_tf',
-                            "element": {
-                                "type": "plain_text_input",
-                                "action_id": "title",
-                                "placeholder": {
-                                    "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
-                                }
-                            },
-                            "label": {
-                                "type": "plain_text",
-                                "text": "Title"
-                            }
-                        },
+app.action('add-role-action', async({ack, body, client}) => callUpdateAddRolesView(app, ack, body, client))
 
-                        {
-                        type: 'input',
-                        block_id: 'input_f',
-                        label: {
-                            type: 'plain_text',
-                            text: 'Description'
-                        },
-                        element: {
-                            type: 'plain_text_input',
-                            action_id: 'inputField',
-                            multiline: true
-                        }
-                        },
-                    ],
-                    submit: {
-                        type: 'plain_text',
-                        text: 'Submit'
-                    }
-                    }
-                });
-                // console.log(result);
-                }
-            catch (error) {
-                console.error(error);
-            }
-    }
-    else{
-        // try {
-        //     await app.client.chat.postMessage({
-        //       token: context.botToken,
-        //       channel: user,
-        //       text: msg
-        //     });
-        //   }
-        //   catch (error) {
-        //     console.error(error);
-        //   }
-        ///// Not Authorized User /////
-    }
-});
+app.view('add_roles_view_submission', async({ack,body, view,context }) => addRoles(app,ack, body, view, context, database, workspaceChecker));
 
-var roles = ''
-app.view('view_2', async ({ ack, body, view, context }) => {
-    await ack();
-    const key1 = view['state']['values']['input_td']['title']['value'];
-    const val1 = view['state']['values']['input_d']['inputField']['value'];
-    const key2 = view['state']['values']['input_te']['title']['value'];
-    const val2 = view['state']['values']['input_e']['inputField']['value'];
-    const key3 = view['state']['values']['input_tf']['title']['value'];
-    const val3 = view['state']['values']['input_f']['inputField']['value'];
+app.view('rolesView', async({ack, body, view, context}) =>{
+    await ack;
+    console.log("rolesView submission was returned")
+})
 
-    roles = {}
-    roles[key1] = val1;
-    roles[key2] = val2;
-    roles[key3] = val3;
-
-    const user = body['user']['id'];
-    // rules = val.inputField.value
-
-    let msg = '';
-
-    msg = 'Your submission was successful';
-
-
-    try {
-      await app.client.chat.postMessage({
-        token: context.botToken,
-        channel: user,
-        text: msg
-      });
-    }
-    catch (error) {
-      console.error(error);
-    }
-});
-
+var roles = '';
 
 app.command('/roles', async ({ ack, body, say }) =>  callRoles(app, ack, body, database, workspaceChecker, roles))
 app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body, database, workspaceChecker))
