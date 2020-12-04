@@ -188,7 +188,7 @@ const callUpdateDeleteRolesView = async (app, ack, body, client) => {
 };
 
 const deleteRoles = async(app,ack, body, view, context, database, workspaceChecker) =>{
-    await ack;
+    await ack();
     console.log('deleteRoles has been called')
     user= body['user']['id']
     msg = 'A Role has been successfully deleted';
@@ -217,15 +217,19 @@ const deleteRoles = async(app,ack, body, view, context, database, workspaceCheck
       }
 };
 
-
 const addRoles = async(app,ack, body, view, context, database, workspaceChecker) => {
-    await ack;
+    await ack();
     console.log('addRoles has been called')
     user= body['user']['id']
-    msg = 'Roles have been successfully added';
+    msg = 'Role has been successfully added';
     val = view['state']['values']
     console.log(val)
     count = 0;
+    for (const property in workspaceChecker) {
+        if (property == body.team.domain) {
+            workspaceID = workspaceChecker[property]
+        }
+      }
     for (const property in val){
         if(count == 0){
             console.log(val[property]['new_role_title_action'].value)
@@ -250,4 +254,20 @@ const addRoles = async(app,ack, body, view, context, database, workspaceChecker)
         console.error(error);
       }
 }
-module.exports = {callUpdateRoles, callUpdateAddRolesView, callUpdateDeleteRolesView, addRoles, deleteRoles}
+
+const ackRolesView = async(app, ack, body, view, context) => {
+    await ack();
+    user = body['user']['id'];
+    msg = 'this has been successfully submitted';
+    try {
+        await app.client.chat.postMessage({
+          token: context.botToken,
+          channel: user,
+          text: msg
+        });
+      }
+      catch (error) {
+        console.error(error);
+      }
+}
+module.exports = {callUpdateRoles, callUpdateAddRolesView, callUpdateDeleteRolesView, addRoles, deleteRoles, ackRolesView}
