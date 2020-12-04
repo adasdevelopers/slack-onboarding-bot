@@ -1,84 +1,46 @@
+//Import all necessary files
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
 require("dotenv").config();
 const _ = require('lodash');
+const callFaq = require("./src/callingFaq");
+const callResources = require('./src/callingResources');
+const callTraining = require('./src/callingTraining');
+const callUpdateInfo = require('./src/callingUpdateInfo');
+const { updateInfo } = require('./config/constants');
+const callAdmins = require("./src/callingAdmins");
+const callWelcomeMessage = require("./src/callingWelcomeMessage");
+const callWorkspaceRules = require("./src/callingWorkspaceRules");
+const {database, workspaceChecker} = require('./config/constants');
+const callRoles = require("./src/callingRoles");
 
+const callUpdateWorkspaceRules = require("./src/callingUpdateWorkspaceRules");
+const callWorkspaceRulesView = require("./src/callWorkspaceRulesView");
+
+
+//Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
-  name: "Ada's Bot"
+  name: "Ada's Bot",
 });
 
+//console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
 (async () => {
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
-app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
-    client.s
-    await ack();
-    var adminsID = _.map(adminList,userAdmin => userAdmin.id)
-    if (adminsID.includes(body.user_id)){
-        try {
-                const result = await client.views.open({
-                    trigger_id: body.trigger_id,
-                    // Payload
-                    view: {
-                    type: 'modal',
-                    callback_id: 'view_1',
-                    title: {
-                        type: 'plain_text',
-                        text: 'Update Workspace Rules'
-                    },
-                    blocks: [
-                        {
-                        type: 'input',
-                        block_id: 'input_c',
-                        label: {
-                            type: 'plain_text',
-                            text: 'Rules'
-                        },
-                        element: {
-                            type: 'plain_text_input',
-                            action_id: 'inputField',
-                            multiline: true
-                        }
-                        }
-                    ],
-                    submit: {
-                        type: 'plain_text',
-                        text: 'Submit'
-                    }
-                    }
-                });
-                // console.log(result);
-                }
-            catch (error) {
-                console.error(error);
-            }
-    }
-    else{
-                // try {
-        //     await app.client.chat.postMessage({
-        //       token: context.botToken,
-        //       channel: user,
-        //       text: msg
-        //     });
-        //   }
-        //   catch (error) {
-        //     console.error(error);
-        //   }
-        ///// Not Authorized User /////
-    }
-});
 
-var rules = 'No Rules Currently Set'
+app.command('/update_workspace_rules',  async ({ ack, body, client }) =>  callUpdateWorkspaceRules(app, ack, body, client, database, workspaceChecker, adminList))
+
+app.view('workspaceRulesView', async({ack, body, view, context}) => callWorkspaceRulesView(app, ack, body, view, context, database, workspaceChecker));
+
 app.view('view_1', async ({ ack, body, view, context }) => {
     await ack();
     const val = view['state']['values']['input_c'];
     const user = body['user']['id'];
     rules = val.inputField.value
-
     // Message to send to the sending user
     let msg = '';
       msg = 'Your submission was successful';
@@ -97,40 +59,17 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 
 });
 
-app.command('/workspace_rules', async ({ ack, body, say }) => {
+//app.command calls the the callWorkspaceRules function
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
+//app.command calls the callResources function
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
+//thisb utton responds to an action taking place from the user selecting the button generated from resources
+app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
-    // const regex = "\n* /gi"
-    // console.log(rules.replace(regex,"\n"))
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `*Current Workspace Rules:* \n ${rules}`
-    })
-
-})
-
-app.command('/resources', async ({ ack, body, say }) => {
-    await ack();
-    console.log("Resources")
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Resources`
-    })
-
-})
-
-app.command('/faq', async ({ ack, body, say }) => {
-    await ack();
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: "Read our FAQ here https://www.adasteam.ca/faq"
-    })
-})
+    // Responds to button from resources
+  });
+//appcommand calls the callFaq function
+app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
     console.log(body)
@@ -305,100 +244,26 @@ app.view('view_2', async ({ ack, body, view, context }) => {
 });
 
 
-app.command('/roles', async ({ ack, body, say }) => {
+app.command('/roles', async ({ ack, body, say }) =>  callRoles(app, ack, body, database, workspaceChecker, roles))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body, database, workspaceChecker))
+app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
-    var roles_type = ''
-    for (const [key, value] of Object.entries(roles)) {
-        // console.log(`${key}: ${value}`);
-        roles_type += `*${key}*: \n ${value} \n\n`
-      }
-      await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(roles_type)}`
-    })
-})
-
-app.command('/training', async ({ ack, body, say }) => {
-    await ack();
-    console.log(body)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Training`
-    })
-})
+    });
+    // Responds to button from resources;
 
 var adminList = [];
-app.command('/admins', async ({ ack, body, say }) => {
+app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
+
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
+// Command to display button to update info at link
+app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
-    fetchUsers();
-    // Returns the admin name
-    var admins = adminList.map(admin => admin.real_name)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
-    })
-})
+    // Responds to button from update-info
+  });
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
 
-const { updateInfo } = require('./config/constants')
 
-app.command('/update_info', async ({ ack, body, say }) => {
-    await ack();
-    try {
-        await app.client.chat.postEphemeral({
-            token: process.env.SLACK_BOT_TOKEN,
-            channel: body.channel_id,
-            user: body.user_id,
-            text: updateInfo.text + " " + updateInfo.url
-        })
-        // const result = await app.client.views.open({
-        //     token: process.env.SLACK_BOT_TOKEN,
-        //     trigger_id: body.trigger_id,
-        //     view: {
-        //         "type": "modal",
-        //         "title": {
-        //             "type": "plain_text",
-        //             "text": "Ada's Bot",
-        //             "emoji": true
-        //         },
-        //         "close": {
-        //             "type": "plain_text",
-        //             "text": "Cancel",
-        //             "emoji": true
-        //         },
-        //         "blocks": [
-        //             {
-        //                 "type": "section",
-        //                 "text": {
-        //                     "type": "mrkdwn",
-        //                     "text": "hello"
-        //                 },
-        //                 "accessory": {
-        //                     "type": "button",
-        //                     "text": {
-        //                         "type": "plain_text",
-        //                         "text": "Update Info",
-        //                         "emoji": true
-        //                     },
-        //                     "value": "click_me_123",
-        //                     "url": "hello",
-        //                     "action_id": "button-action"
-        //                 }
-        //             }
-        //         ]
-        //     }
-        // })
-    }
-    catch (error) {
-        console.log(error)
-    }
 
-})
 
 var adminList = {};
 
@@ -426,13 +291,3 @@ function saveAdmins(usersArray) {
 
 }
 fetchUsers();
-
-app.event('member_joined_channel', async ({ event, client, context }) => {
-    console.log(event)
-    await app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: event.channel,
-        user: event.user,
-        text: `Welcome to the team, <@${event.user}>!`
-    })
-});
