@@ -5,6 +5,7 @@ var rules = 'No Rules Currently Set'
 
 const callWorkspaceRules = async (app, ack, body, database, workspaceChecker) => {
 	await ack();
+	console.log(workspaceChecker)
 	blockList= []
 	const beforeRules = {
 		"type": "section",
