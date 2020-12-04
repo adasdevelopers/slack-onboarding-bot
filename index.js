@@ -12,6 +12,7 @@ const callAdmins = require("./src/callingAdmins");
 const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const callWorkspaceRules = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
+const callRoles = require("./src/callingRoles");
 
 
 //Initialize the application
@@ -29,19 +30,6 @@ const app = new App({
 })();
 
 //Welcome greeting prototype
-app.event('app_home_opened', async ({event, context}) => {
-    try {
-        console.log("GREETING MESSAGE")
-        const result = await app.client.chat.postEphemeral({
-            token: context.botToken,
-            user_id: event.user,
-            channel: context.channel_id,
-            text: "HOLA SOI ADABOT"
-        }
-    )} catch (error) {
-            console.error(error);
-        }
-    });
 //const channelGreeting = async (app,)
 
 app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
@@ -312,20 +300,8 @@ app.view('view_2', async ({ ack, body, view, context }) => {
 });
 
 
-app.command('/roles', async ({ ack, body, say }) => {
-    await ack();
-    var roles_type = ''
-    for (const [key, value] of Object.entries(roles)) {
-        // console.log(`${key}: ${value}`);
-        roles_type += `*${key}*: \n ${value} \n\n`
-      }
-      await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(roles_type)}`
-    })
-})
+app.command('/roles', async ({ ack, body, say }) =>  callRoles(app, ack, body, database, workspaceChecker, roles))
+
 app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body,database, workspaceChecker))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
