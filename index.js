@@ -22,9 +22,7 @@ const app = new App({
 });
 
 //console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
-
 (async () => {
-    process.env.PORT = 3000;
     await app.start(process.env.PORT); // Starts the bot
     console.log("Bot is listening on port " + process.env.PORT);
 })();
@@ -129,10 +127,10 @@ app.view('view_1', async ({ ack, body, view, context }) => {
 });
 
 //app.command calls the the callWorkspaceRules function
-app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body) )
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
 //app.command calls the callResources function
 app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
-//this button responds to an action taking place from the user selecting the button generated from resources
+//thisb utton responds to an action taking place from the user selecting the button generated from resources
 app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
     // Responds to button from resources
@@ -141,7 +139,7 @@ app.action('resource-button-action', async ({ ack, say }) => {
 app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => {
-    //console.log(body)
+    console.log(body)
     await ack();
     var adminsID = _.map(adminList,userAdmin => userAdmin.id)
     if (adminsID.includes(body.user_id)){
@@ -327,7 +325,7 @@ app.command('/roles', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(roles_type)}`
     })
 })
-app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body, database, workspaceChecker))
 app.action('training-checkboxes-action', async ({ ack, body, say }) => {
     await ack();
     });
@@ -342,7 +340,8 @@ app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
     // Responds to button from update-info
   });
-app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event , client, context, app));
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
+
 
 
 

@@ -1,9 +1,9 @@
+  
 require("dotenv").config();
 const {database, workspaceChecker} = require('../config/constants')
 const callWelcomeMessage = async ( event, client, context, app ) => {
-  workspaceCode = event.team  // store team field of event
-  //userCode = event.user
     try{
+        console.log(event)
         await app.client.chat.postMessage({
             token: process.env.SLACK_BOT_TOKEN,
             channel: event.channel,
@@ -14,4 +14,4 @@ const callWelcomeMessage = async ( event, client, context, app ) => {
             console.error(error);
         }
     };
-module.exports = callWelcomeMessage;
+module.exports = callWelcomeMessage
