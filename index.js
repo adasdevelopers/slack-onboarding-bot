@@ -14,6 +14,10 @@ const callWorkspaceRules = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
 const callRoles = require("./src/callingRoles");
 
+const callUpdateWorkspaceRules = require("./src/callingUpdateWorkspaceRules");
+const callWorkspaceRulesView = require("./src/callWorkspaceRulesView");
+
+
 //Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -27,74 +31,16 @@ const app = new App({
     console.log("Bot is listening on port " + process.env.PORT);
 })();
 
-//Welcome greeting prototype
-//const channelGreeting = async (app,)
 
-app.command('/update_workspace_rules',  async ({ ack, body, client }) => {
-    client.s
-    await ack();
-    var adminsID = _.map(adminList,userAdmin => userAdmin.id)
-    if (adminsID.includes(body.user_id)){
-        try {
-                const result = await client.views.open({
-                    trigger_id: body.trigger_id,
-                    // Payload
-                    view: {
-                    type: 'modal',
-                    callback_id: 'view_1',
-                    title: {
-                        type: 'plain_text',
-                        text: 'Update Workspace Rules'
-                    },
-                    blocks: [
-                        {
-                        type: 'input',
-                        block_id: 'input_c',
-                        label: {
-                            type: 'plain_text',
-                            text: 'Rules'
-                        },
-                        element: {
-                            type: 'plain_text_input',
-                            action_id: 'inputField',
-                            multiline: true
-                        }
-                        }
-                    ],
-                    submit: {
-                        type: 'plain_text',
-                        text: 'Submit'
-                    }
-                    }
-                });
-                // console.log(result);
-                }
-            catch (error) {
-                console.error(error);
-            }
-    }
-    else{
-                // try {
-        //     await app.client.chat.postMessage({
-        //       token: context.botToken,
-        //       channel: user,
-        //       text: msg
-        //     });
-        //   }
-        //   catch (error) {
-        //     console.error(error);
-        //   }
-        ///// Not Authorized User /////
-    }
-});
+app.command('/update_workspace_rules',  async ({ ack, body, client }) =>  callUpdateWorkspaceRules(app, ack, body, client, database, workspaceChecker, adminList))
 
+app.view('workspaceRulesView', async({ack, body, view, context}) => callWorkspaceRulesView(app, ack, body, view, context, database, workspaceChecker));
 
 app.view('view_1', async ({ ack, body, view, context }) => {
     await ack();
     const val = view['state']['values']['input_c'];
     const user = body['user']['id'];
     rules = val.inputField.value
-
     // Message to send to the sending user
     let msg = '';
       msg = 'Your submission was successful';
