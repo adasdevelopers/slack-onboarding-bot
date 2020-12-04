@@ -140,7 +140,7 @@ database = {
     }
 }
 workspaceChecker = {
-    'adas-teamworkspace' : "adasdevelopers",
+    'adas-teamworkspace' : "adasteam",
     'adas-developerworkspace': "adasdevelopers",
     'adas-mentorsworkspace': "adasmentors",
     'adas-networkworkspace' : "adasnetwork",

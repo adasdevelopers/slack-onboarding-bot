@@ -217,7 +217,6 @@ const deleteRoles = async(app,ack, body, view, context, database, workspaceCheck
       }
 };
 
-
 const addRoles = async(app,ack, body, view, context, database, workspaceChecker) => {
     await ack();
     console.log('addRoles has been called')
