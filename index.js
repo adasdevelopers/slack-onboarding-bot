@@ -13,14 +13,8 @@ const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const {callWorkspaceRules, callWorkspaceRulesView, callUpdateWorkspaceRules} = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
 const callRoles = require("./src/callingRoles");
-<<<<<<< HEAD
 const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles, ackRolesView} = require("./src/callingUpdateRoles");
-=======
-const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles} = require("./src/callingUpdateRoles");
-// const callUpdateAddRolesViews = require('./src/callingUpdateAddRolesView');
-// const callUpdateDeleteRolesViews = require('./src/callingUpdateDeleteRolesView');
 
->>>>>>> b4d172a244b61218ae73a0d300b3c8bf94e60d2c
 //Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
