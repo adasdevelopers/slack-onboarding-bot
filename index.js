@@ -13,9 +13,7 @@ const callWelcomeMessage = require("./src/callingWelcomeMessage");
 const {callWorkspaceRules, callWorkspaceRulesView, callUpdateWorkspaceRules} = require("./src/callingWorkspaceRules");
 const {database, workspaceChecker} = require('./config/constants');
 const callRoles = require("./src/callingRoles");
-const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles} = require("./src/callingUpdateRoles");
-// const callUpdateAddRolesViews = require('./src/callingUpdateAddRolesView');
-// const callUpdateDeleteRolesViews = require('./src/callingUpdateDeleteRolesView');
+const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles, ackRolesView} = require("./src/callingUpdateRoles");
 //Initialize the application
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -34,7 +32,6 @@ const app = new App({
 app.command('/update_workspace_rules',  async ({ ack, body, client }) =>  callUpdateWorkspaceRules(app, ack, body, client, database, workspaceChecker, adminList))
 
 app.view('workspaceRulesView', async({ack, body, view, context}) => callWorkspaceRulesView(app, ack, body, view, context, database, workspaceChecker));
-
 
 //app.command calls the the callWorkspaceRules function
 app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
@@ -59,10 +56,7 @@ app.action('add-role-action', async({ack, body, client}) => callUpdateAddRolesVi
 
 app.view('add_roles_view_submission', async({ack,body, view,context }) => addRoles(app,ack, body, view, context, database, workspaceChecker));
 
-app.view('rolesView', async({ack, body, view, context}) =>{
-    await ack;
-    console.log("rolesView submission was returned")
-})
+app.view('rolesView', async({ack, body, view, context}) => ackRolesView(app, ack,body,view,context));
 
 var roles = '';
 
@@ -84,8 +78,6 @@ app.action('update-info-button-action', async ({ ack, say }) => {
     // Responds to button from update-info
   });
 app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
-
-
 
 
 var adminList = {};
