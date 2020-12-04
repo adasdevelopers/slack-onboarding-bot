@@ -8,7 +8,16 @@ database = {
         welcomeMessage :
             "Welcome to the Adas Mentors workspace! The goal of Adas Mentors is to mentor underprivileged students lacking the confidence and exposure to university and the application process.",
         workspaceRules : [''],
-        roles : [],
+        roles : [
+            'Administrator',
+            'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
+            'Execs',
+            'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.',
+            'Mentors',
+            'Mentors act as industry connections for any Adas Developers students. Mentors may meet with students (bi)weekly for status updates, as well as share any advice relating to the industry or careers in general. Please note that, for any questions regarding project requirements, students should reach out to the Adas Developers organizers or project clients instead of their mentors.',
+            'Students',
+            'Students accepted to be a part of a student cohort in Adas Developers will be assigned this role. Students will work together on various projects as software developers, designers, or project managers.'
+        ],
         training : ['*Who Are You?*','Under [What I do] please describe your field (ie, high school, undergraduate, graduate student, alumni, industry partner, or Adas Mentor organizer)'],
         resources : {
             adasMentorsWebsite:{
@@ -36,7 +45,16 @@ database = {
             '❌DO NOT Engage in public or private harassment',
             '❌DO NOT Publish others private information, such as a physical or electronic address ',
             '❌DO NOT Engage in any other conduct which could reasonably be considered inappropriate in a professional setting'],
-        roles : [],
+        roles : [
+           'Administrator',
+           'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
+           'Execs',
+           'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.',
+           'Mentors',
+           'Mentors act as industry connections for any Adas Developers students. Mentors may meet with students (bi)weekly for status updates, as well as share any advice relating to the industry or careers in general. Please note that, for any questions regarding project requirements, students should reach out to the Adas Developers organizers or project clients instead of their mentors.',
+           'Students',
+           'Students accepted to be a part of a student cohort in Adas Developers will be assigned this role. Students will work together on various projects as software developers, designers, or project managers.'
+        ],
         training : [],
         resources : {},
         acknowledgements : {
@@ -47,7 +65,10 @@ database = {
     "adasteam" :{
         welcomeMessage : "Welcome to Adas Team! The Adas Team workspace is for the executives to collaborate, ask questions, and fulfill Adas Team initiatives. Although everyone has their VP roles to complete, the Adas Team executive committee is meant to be a safe space; if you are struggling with your work, please ask others for help! Congrats, and thanks for joining our team. We're so happy to have you here with us!",
         workspaceRules : ['View our constitution, under Article 4 for the official rules and duties of an Adas Team executive:  https://drive.google.com/file/d/1ntfk7iUron6_jWnJSkhcQnpyn7iQbMy2/view?usp=sharing'],
-        roles : [],
+        roles : [
+            'View section 4.3 of the constitution : https://drive.google.com/file/d/1ntfk7iUron6_jWnJSkhcQnpyn7iQbMy2/view?usp=sharing',
+            'Alternatively, view the Ada’s Team website for a short overview : https://www.adasteam.ca/team'
+        ],
         training : ['*Executive Position*','Under [What I Do], please write your executive position'],
         resources : {
             adasTeamExecResourceWebsite : {
@@ -77,7 +98,7 @@ database = {
 
     },
     "adasconference": {
-        welcomeMessage : "Welcome to Adas Network! This workspace was created to keep those involved with Adas Team, past or present, connected. It’s a supportive network that strives to provide a space for knowledge and opportunities to be shared with one another that empower our academic or career choices. We’re so happy to have you here with us!",
+        welcomeMessage : "Welcome to Adas Conference! This workspace was created for the Adas Conference initiative, where Adas Team sends and funds students to attend conferences all over the world! This workspace is accessible to those attending the conference with Adas Team. If you have any questions, refer to this resource or ask one of the administrators for help!",
         workspaceRules : [
             '✔️DO Use welcoming language and inclusive language',
             '✔️DO Be respectful of differing viewpoints and experiences' ,
@@ -91,7 +112,12 @@ database = {
             '❌DO NOT Engage in public or private harassment',
             '❌DO NOTPublish others private information, such as a physical or electronic address ',
             '❌DO NOT Engage in any other conduct which could reasonably be considered inappropriate in a professional setting'],
-        roles : [],
+        roles : [
+            'Administrator',
+            'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
+            'Execs',
+            'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.'
+            ],
         training : [],
         resources : {},
         acknowledgements : {
