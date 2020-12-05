@@ -156,7 +156,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "action_id": "title",
                                 "placeholder": {
                                     "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
+                                    "text": "Input text here to update your first role"
                                 }
                             },
                             "label": {
@@ -187,7 +187,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "action_id": "title",
                                 "placeholder": {
                                     "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
+                                    "text": "Input text here to update your second role"
                                 }
                             },
                             "label": {
@@ -219,7 +219,7 @@ app.command('/update_roles',  async ({ ack, body, client }) => {
                                 "action_id": "title",
                                 "placeholder": {
                                     "type": "plain_text",
-                                    "text": "What do you want to ask of the world?"
+                                    "text": "Input text here to update your third role"
                                 }
                             },
                             "label": {
@@ -344,6 +344,63 @@ app.command('/admins', async ({ ack, body, say }) => {
         text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
     })
 })
+
+const { updateInfo } = require('./config/constants')
+
+app.command('/update_info', async ({ ack, body, say }) => {
+    await ack();
+    try {
+        await app.client.chat.postEphemeral({
+            token: process.env.SLACK_BOT_TOKEN,
+            channel: body.channel_id,
+            user: body.user_id,
+            text: updateInfo.text + " " + updateInfo.url
+        })
+        // const result = await app.client.views.open({
+        //     token: process.env.SLACK_BOT_TOKEN,
+        //     trigger_id: body.trigger_id,
+        //     view: {
+        //         "type": "modal",
+        //         "title": {
+        //             "type": "plain_text",
+        //             "text": "Ada's Bot",
+        //             "emoji": true
+        //         },
+        //         "close": {
+        //             "type": "plain_text",
+        //             "text": "Cancel",
+        //             "emoji": true
+        //         },
+        //         "blocks": [
+        //             {
+        //                 "type": "section",
+        //                 "text": {
+        //                     "type": "mrkdwn",
+        //                     "text": "hello"
+        //                 },
+        //                 "accessory": {
+        //                     "type": "button",
+        //                     "text": {
+        //                         "type": "plain_text",
+        //                         "text": "Update Info",
+        //                         "emoji": true
+        //                     },
+        //                     "value": "click_me_123",
+        //                     "url": "hello",
+        //                     "action_id": "button-action"
+        //                 }
+        //             }
+        //         ]
+        //     }
+        // })
+    }
+    catch (error) {
+        console.log(error)
+    }
+
+})
+
+var adminList = {};
 
 async function fetchUsers() {
   try {
