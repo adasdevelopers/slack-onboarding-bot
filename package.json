@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/adasdevelopers/slack-onboarding-bot#readme",
   "dependencies": {
-    "@slack/bolt": "^2.4.1",
+    "@slack/bolt": "^2.5.0",
     "delay": "^4.4.0",
     "dotenv": "^8.2.0",
     "lodash": "^4.17.20",
