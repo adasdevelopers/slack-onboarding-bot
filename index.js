@@ -1,6 +1,7 @@
+//Import all necessary files
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
-require("dotenv").config();
+require("./test/node_modules/dotenv").config();
 const _ = require('lodash');
 const callFaq = require("./src/callingFaq");
 const callResources = require('./src/callingResources');
@@ -18,7 +19,7 @@ const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRole
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   token: process.env.SLACK_BOT_TOKEN,
-  name: "Ada's Bot"
+  name: "Ada's Bot",
 });
 
 //console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
@@ -39,38 +40,10 @@ app.command('/resources', async({ack, body, say}) => callResources(app, ack, bod
 //this button responds to an action taking place from the user selecting the button generated from resources
 app.action('resource-button-action', async ({ ack, say }) => {
     await ack();
-    // const regex = "\n* /gi"
-    // console.log(rules.replace(regex,"\n"))
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `*Current Workspace Rules:* \n ${rules}`
-    })
-
-})
-
-app.command('/resources', async ({ ack, body, say }) => {
-    await ack();
-    console.log("Resources")
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `Resources`
-    })
-
-})
-
-app.command('/faq', async ({ ack, body, say }) => {
-    await ack();
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: "Read our FAQ here https://www.adasteam.ca/faq"
-    })
-})
+    // Responds to button from resources
+  });
+//appcommand calls the callFaq function
+app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
 
 app.command('/update_roles',  async ({ ack, body, client }) => callUpdateRoles(app, ack, body, client, database, workspaceChecker, adminList))
 
@@ -97,21 +70,14 @@ app.action('training-checkboxes-action', async ({ ack, body, say }) => {
 var adminList = [];
 app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
 
-var adminList = [];
-app.command('/admins', async ({ ack, body, say }) => {
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
+// Command to display button to update info at link
+app.action('update-info-button-action', async ({ ack, say }) => {
     await ack();
-    fetchUsers();
-    // Returns the admin name
-    var admins = adminList.map(admin => admin.real_name)
-    await app.client.chat.postEphemeral({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: body.channel_id,
-        user: body.user_id,
-        text: `The following admins of this workspace are: \n ${(admins.join('\n'))}`
-    })
-})
+    // Responds to button from update-info
+  });
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
 
-const { updateInfo } = require('./config/constants')
 
 var adminList = {};
 
@@ -139,13 +105,3 @@ function saveAdmins(usersArray) {
 
 }
 fetchUsers();
-
-app.event('member_joined_channel', async ({ event, client, context }) => {
-    console.log(event)
-    await app.client.chat.postMessage({
-        token: process.env.SLACK_BOT_TOKEN,
-        channel: event.channel,
-        user: event.user,
-        text: `Welcome to the team, <@${event.user}>!`
-    })
-});

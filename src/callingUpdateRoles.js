@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("../test/node_modules/dotenv").config();
 const {database} = require("../config/constants")
 const _ = require('lodash');
 const callUpdateRoles = async (app, ack, body, client, database, workspaceChecker, adminList) => {

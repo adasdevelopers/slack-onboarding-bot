@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("../test/node_modules/dotenv").config();
 const {database, workspaceChecker} = require('../config/constants')
 const callTraining = async (app, ack, body, database, workspaceChecker) => {
     await ack();
