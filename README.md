@@ -9,6 +9,3 @@ A Slack onboarding bot for all of Ada's Team's workspaces.
 ## Storing Information
 `Required dependencies
 config`
-
-## Deployment
-`Deployed on Glitch`
