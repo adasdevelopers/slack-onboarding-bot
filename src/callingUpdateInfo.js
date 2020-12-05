@@ -1,4 +1,4 @@
-require("../test/node_modules/dotenv").config();
+require("dotenv").config();
 const { updateInfo } = require('../config/constants.js');
 
 const callUpdateInfo = async (app, ack, body, say) => { 
