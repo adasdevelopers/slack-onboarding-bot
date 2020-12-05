@@ -1,7 +1,7 @@
 //Import all necessary files
 const { App } = require("@slack/bolt");
 const { forEach } = require("lodash");
-require("./test/node_modules/dotenv").config();
+require("dotenv").config();
 const _ = require('lodash');
 const callFaq = require("./src/callingFaq");
 const callResources = require('./src/callingResources');
