@@ -3,7 +3,7 @@ const updateInfo = {
   "url": "https://www.adasteam.ca"
 }
 
-database = {
+const database = {
   "adasmentors" : {
       welcomeMessage :
           "Welcome to the Adas Mentors workspace! The goal of Adas Mentors is to mentor underprivileged students lacking the confidence and exposure to university and the application process.",
@@ -139,7 +139,7 @@ database = {
 
   }
 }
-workspaceChecker = {
+const workspaceChecker = {
   'adas-teamworkspace' : "adasteam",
   'adas-developerworkspace': "adasdevelopers",
   'adas-mentorsworkspace': "adasmentors",
