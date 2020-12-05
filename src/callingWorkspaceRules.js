@@ -1,4 +1,4 @@
-require("../test/node_modules/dotenv").config();
+require("dotenv").config();
 const {database} = require("../config/constants")
 const _ = require('lodash');
 
