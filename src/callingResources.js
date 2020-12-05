@@ -1,4 +1,4 @@
-require("../test/node_modules/dotenv").config();
+// require("../test/node_modules/dotenv").config();
 const {database, workspaceChecker} = require('../config/constants')
 const callResources = async (app, ack, body, workspaceChecker, database) => {
     workspaceID = ''

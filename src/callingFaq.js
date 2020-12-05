@@ -1,4 +1,4 @@
-require("../test/node_modules/dotenv").config();
+require("dotenv").config();
 const callFaq = async (app, ack, body) => {
 	console.log(body)
 	await ack();
