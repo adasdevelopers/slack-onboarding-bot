@@ -1,152 +1,107 @@
-const updateInfo = {
-    "text": "Here is how you update your personal info:",
-    "url": "https://www.adasteam.ca"
+//Import all necessary files
+const { App } = require("@slack/bolt");
+const { forEach } = require("lodash");
+require("dotenv").config();
+const _ = require('lodash');
+const callFaq = require("./src/callingFaq");
+const callResources = require('./src/callingResources');
+const callTraining = require('./src/callingTraining');
+const callUpdateInfo = require('./src/callingUpdateInfo');
+const { updateInfo } = require('./config/constants');
+const callAdmins = require("./src/callingAdmins");
+const callWelcomeMessage = require("./src/callingWelcomeMessage");
+const {callWorkspaceRules, callWorkspaceRulesView, callUpdateWorkspaceRules} = require("./src/callingWorkspaceRules");
+const {database, workspaceChecker} = require('./config/constants');
+const callRoles = require("./src/callingRoles");
+const {callUpdateRoles,callUpdateAddRolesView, callUpdateDeleteRolesView,addRoles, deleteRoles, ackRolesView} = require("./src/callingUpdateRoles");
+
+//Initialize the application
+const app = new App({
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  token: process.env.SLACK_BOT_TOKEN,
+  name: "Ada's Bot",
+});
+
+//console.log(app.auth.test(process.env.SLACK_BOT_TOKEN))
+(async () => {
+    await app.start(process.env.PORT); // Starts the bot
+    console.log("Bot is listening on port " + process.env.PORT);
+})();
+
+
+app.command('/update_workspace_rules',  async ({ ack, body, client }) =>  callUpdateWorkspaceRules(app, ack, body, client, database, workspaceChecker, adminList))
+
+app.view('workspaceRulesView', async({ack, body, view, context}) => callWorkspaceRulesView(app, ack, body, view, context, database, workspaceChecker));
+
+//app.command calls the the callWorkspaceRules function
+app.command('/workspace_rules', async({ack , body, say}) => callWorkspaceRules(app, ack, body, database, workspaceChecker) )
+//app.command calls the callResources function
+app.command('/resources', async({ack, body, say}) => callResources(app, ack, body, workspaceChecker, database));
+//this button responds to an action taking place from the user selecting the button generated from resources
+app.action('resource-button-action', async ({ ack, say }) => {
+    await ack();
+    // Responds to button from resources
+  });
+//appcommand calls the callFaq function
+app.command('/faq', async ({ack, body, say}) => callFaq(app, ack, body));
+
+app.command('/update_roles',  async ({ ack, body, client }) => callUpdateRoles(app, ack, body, client, database, workspaceChecker, adminList))
+
+app.action('delete-role-action', async({ack, body, client}) => callUpdateDeleteRolesView(app, ack, body, client))
+
+app.view('delete_roles_view_submission', async({ack,body,view,context}) => deleteRoles(app,ack, body, view, context, database, workspaceChecker));
+
+
+app.action('add-role-action', async({ack, body, client}) => callUpdateAddRolesView(app, ack, body, client))
+
+app.view('add_roles_view_submission', async({ack,body, view,context }) => addRoles(app,ack, body, view, context, database, workspaceChecker));
+
+app.view('rolesView', async({ack, body, view, context}) => ackRolesView(app, ack,body,view,context));
+
+var roles = '';
+
+app.command('/roles', async ({ ack, body, say }) =>  callRoles(app, ack, body, database, workspaceChecker, roles))
+app.command('/training', async ({ack, body, say}) => callTraining(app, ack, body, database, workspaceChecker))
+app.action('training-checkboxes-action', async ({ ack, body, say }) => {
+    await ack();
+    });
+    // Responds to button from resources;
+
+var adminList = [];
+app.command('/admins', async ({ ack, body, say }) => callAdmins( ack, body, say, adminList, app))
+
+app.command('/update_info', async({ ack, body, say}) => callUpdateInfo( app, ack, body, say))
+// Command to display button to update info at link
+app.action('update-info-button-action', async ({ ack, say }) => {
+    await ack();
+    // Responds to button from update-info
+  });
+app.event('member_joined_channel', async ({event, client, context}) => callWelcomeMessage(event ,client,  context,  app));
+
+
+var adminList = {};
+
+async function fetchUsers() {
+  try {
+    const result = await app.client.users.list({
+      token: process.env.SLACK_BOT_TOKEN
+    });
+
+    saveAdmins(result.members);
+  }
+  catch (error) {
+    console.error(error);
+  }
 }
 
-const database = {
-    "adasmentors" : {
-        welcomeMessage :
-            "Welcome to the Adas Mentors workspace! The goal of Adas Mentors is to mentor underprivileged students lacking the confidence and exposure to university and the application process.",
-        workspaceRules : [''],
-        workspaceDoRulesCount : 0,
-        workspaceDoNotRulesCount : 0,
-        roles : [
-            'Administrator',
-            'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
-            'Execs',
-            'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.',
-            'Mentors',
-            'Mentors act as industry connections for any Adas Developers students. Mentors may meet with students (bi)weekly for status updates, as well as share any advice relating to the industry or careers in general. Please note that, for any questions regarding project requirements, students should reach out to the Adas Developers organizers or project clients instead of their mentors.',
-            'Students',
-            'Students accepted to be a part of a student cohort in Adas Developers will be assigned this role. Students will work together on various projects as software developers, designers, or project managers.'
-        ],
-        training : ['*Who Are You?*','Under [What I do] please describe your field (ie, high school, undergraduate, graduate student, alumni, industry partner, or Adas Mentor organizer)'],
-        resources : {
-            adasMentorsWebsite:{
-                url: "https://sites.google.com/ualberta.ca/adas-mentors-wiki/home",
-                text: "Check out Adas Mentors Wiki Home "
-            }},
-        acknowledgements : {
-            body : "We respectfully acknowledge that Adas Mentors is located on Treaty 6 territory. Treaty 6 is a traditional gathering place for diverse Indigenous peoples including the Cree, Blackfoot, Metis, Nakota Sioux, Iroquois, Dene, Ojibway/Saulteaux/Anishinaabe, Inuit, and many others whose histories, languages, and cultures continue to influence our vibrant community.",
-            sig:  "Created by Adas Developers ",
-            url: "https://github.com/adasdevelopers/slack-onboarding-bot"
+function saveAdmins(usersArray) {
+    adminList = [];
+    usersArray.map(user => {
+        if (user["is_admin"] === true){
+            adminList.push(user)
+        }else{
         }
-    },
-    "adasdevelopers" : {
-        welcomeMessage : "Welcome to Adas Developers! This workspace was created for the Adas Developers initiative, where students come together to create software! This workspace is accessible to software developers, designers, project managers, mentors, and administrators. If you have any questions, refer to this resource or ask one of the administrators for help!",
-        workspaceRules : [
-            '✔️DO Use welcoming language and inclusive language', 
-            '✔️DO Be respectful of differing viewpoints and experiences' , 
-            '✔️DO Gracefully accept constructive criticism', 
-            '✔️DO Focus on what is best for the community', 
-            '✔️DO Show empathy towards other community members', 
-            '❌DO NOT Use sexualized language or imagery', 
-            '❌DO NOT Initiate sexual attention or advances' , 
-            '❌DO NOT Engage in trolling or make insulting/derogatory comments', 
-            '❌DO NOT Attack personal or political values', 
-            '❌DO NOT Engage in public or private harassment', 
-            '❌DO NOT Publish others private information, such as a physical or electronic address ', 
-            '❌DO NOT Engage in any other conduct which could reasonably be considered inappropriate in a professional setting'],
-        workspaceDoRulesCount : 5,
-        workspaceDoNotRulesCount : 7,
-        roles : [
-           'Administrator',
-           'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
-           'Execs',
-           'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.',
-           'Mentors',
-           'Mentors act as industry connections for any Adas Developers students. Mentors may meet with students (bi)weekly for status updates, as well as share any advice relating to the industry or careers in general. Please note that, for any questions regarding project requirements, students should reach out to the Adas Developers organizers or project clients instead of their mentors.',
-           'Students',
-           'Students accepted to be a part of a student cohort in Adas Developers will be assigned this role. Students will work together on various projects as software developers, designers, or project managers.'
-        ],
-        training : [],
-        resources : {},
-        acknowledgements : {
-            body : "We respectfully acknowledge that Adas Developers is located on Treaty 6 territory. Treaty 6 is a traditional gathering place for diverse Indigenous peoples including the Cree, Blackfoot, Metis, Nakota Sioux, Iroquois, Dene, Ojibway/Saulteaux/Anishinaabe, Inuit, and many others whose histories, languages, and cultures continue to influence our vibrant community.",
-            sig:  "Created by Adas Developers ",
-            url: "https://github.com/adasdevelopers/slack-onboarding-bot"}
-    },
-    "adasteam" :{
-        welcomeMessage : "Welcome to Adas Team! The Adas Team workspace is for the executives to collaborate, ask questions, and fulfill Adas Team initiatives. Although everyone has their VP roles to complete, the Adas Team executive committee is meant to be a safe space; if you are struggling with your work, please ask others for help! Congrats, and thanks for joining our team. We're so happy to have you here with us!",
-        workspaceRules : [
-            'View our constitution, under Article 4 for the official rules and duties of an Adas Team executive:  https://drive.google.com/file/d/1ntfk7iUron6_jWnJSkhcQnpyn7iQbMy2/view?usp=sharing'],
-        workspaceDoRulesCount : 0,
-        workspaceDoNotRulesCount : 1,
-        roles : [
-            'View section 4.3 of the constitution : https://drive.google.com/file/d/1ntfk7iUron6_jWnJSkhcQnpyn7iQbMy2/view?usp=sharing',
-            'Alternatively, view the Ada’s Team website for a short overview : https://www.adasteam.ca/team'
-        ],
-        training : ['*Executive Position*','Under [What I Do], please write your executive position'],
-        resources : {
-            adasTeamExecResourceWebsite : {
-                url : "https://sites.google.com/ualberta.ca/adas-team-wiki/home",
-                text : "Check out Adas Team Wiki Home "}},
-        acknowledgements : {body : "We respectfully acknowledge that Adas Team is located on Treaty 6 territory.Treaty 6 is a traditional gathering place for diverse Indigenous peoples including the Cree, Blackfoot, Metis, Nakota Sioux, Iroquois, Dene, Ojibway/Saulteaux/Anishinaabe, Inuit, and many others whose histories, languages, and cultures continue to influence our vibrant community.", sig:  "Created by Adas Developers ", url: "https://github.com/adasdevelopers/slack-onboarding-bot"}
-    },
-    "adasnetwork": {
-        welcomeMessage : "Welcome to Adas Network! This workspace was created to keep those involved with Adas Team, past or present, connected. It’s a supportive network that strives to provide a space for knowledge and opportunities to be shared with one another that empower our academic or career choices. We are so happy to have you here with us!",
-        workspaceRules : [
+    })
 
-            '✔️DO Use welcoming language and inclusive language', 
-            '✔️DO Be respectful of differing viewpoints and experiences' , 
-            '✔️DO Gracefully accept constructive criticism', 
-            '✔️DO Focus on what is best for the community', 
-            '✔️DO Show empathy towards other community members', 
-            '❌DO NOT Use sexualized language or imagery', 
-            '❌DO NOT Initiate sexual attention or advances' , 
-            '❌DO NOT Engage in trolling or make insulting/derogatory comments', 
-            '❌DO NOT Attack personal or political values', 
-            '❌DO NOT Engage in public or private harassment', 
-            '❌DO NOTPublish others private information, such as a physical or electronic address ', 
-            '❌DO NOT Engage in any other conduct which could reasonably be considered inappropriate in a professional setting'],
-        workspaceDoRulesCount : 5,
-        workspaceDoNotRulesCount : 7,
-        roles : [],
-        training : ['*Introduce Yourself!*','Please introduce yourself in the #introductions channel, and your relationship with Adas Team!'],
-        resources : {},
-        acknowledgements : {body : "We respectfully acknowledge that Adas Network is located on Treaty 6 territory. Treaty 6 is a traditional gathering place for diverse Indigenous peoples including the Cree, Blackfoot, Metis, Nakota Sioux, Iroquois, Dene, Ojibway/Saulteaux/Anishinaabe, Inuit, and many others whose histories, languages, and cultures continue to influence our vibrant community.", sig:  "Created by Adas Developers ", url: "https://github.com/adasdevelopers/slack-onboarding-bot"}
-
-    },
-    "adasconference": {
-        welcomeMessage : "Welcome to Adas Conference! This workspace was created for the Adas Conference initiative, where Adas Team sends and funds students to attend conferences all over the world! This workspace is accessible to those attending the conference with Adas Team. If you have any questions, refer to this resource or ask one of the administrators for help!",
-        workspaceRules : [
-            '✔️DO Use welcoming language and inclusive language', 
-            '✔️DO Be respectful of differing viewpoints and experiences' , 
-            '✔️DO Gracefully accept constructive criticism', 
-            '✔️DO Focus on what is best for the community', 
-            '✔️DO Show empathy towards other community members', 
-            '❌DO NOT Use sexualized language or imagery', 
-            '❌DO NOT Initiate sexual attention or advances' , 
-            '❌DO NOT Engage in trolling or make insulting/derogatory comments', 
-            '❌DO NOT Attack personal or political values', 
-            '❌DO NOT Engage in public or private harassment', 
-            '❌DO NOTPublish others private information, such as a physical or electronic address ', 
-            '❌DO NOT Engage in any other conduct which could reasonably be considered inappropriate in a professional setting'],
-        workspaceDoRulesCount : 5,
-        workspaceDoNotRulesCount : 7,
-        roles : [
-            'Administrator',
-            'Administrators have administrative privileges in the Ada’s Developers workspace, and this role is reserved for Ada’s Developers organizers. If you have any questions about anything Ada’s Developers related, be sure to reach out to an administrator!',
-            'Execs',
-            'Execs are representatives of Adas Team that are within the workspace for monitoring or communication purposes.'
-            ],
-        training : [],
-        resources : {},
-        acknowledgements : {
-            body : "We respectfully acknowledge that Ada’s Network is located on Treaty 6 territory. Treaty 6 is a traditional gathering place for diverse Indigenous peoples including the Cree, Blackfoot, Metis, Nakota Sioux, Iroquois, Dene, Ojibway/Saulteaux/Anishinaabe, Inuit, and many others whose histories, languages, and cultures continue to influence our vibrant community.",
-            sig:  "Created by Ada’s Developers ",
-            url: "https://github.com/adasdevelopers/slack-onboarding-bot"}
-
-    }
 }
-const workspaceChecker = {
-    'adas-teamworkspace' : "adasteam",
-    'adas-developerworkspace': "adasdevelopers",
-    'adas-mentorsworkspace': "adasmentors",
-    'adas-networkworkspace' : "adasnetwork",
-    'adas-conferenceworkspace' : "adasconference"
-}
-
-
-//console.log(database.adasnetwork.welcomeMessage)
-module.exports = { updateInfo, database, workspaceChecker }
+fetchUsers();
